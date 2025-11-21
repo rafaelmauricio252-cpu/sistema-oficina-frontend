@@ -28,7 +28,6 @@ import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Remove as RemoveIcon,
 } from '@mui/icons-material';
 import type { OrdemServico as OrdemServicoType, OSFormData, Cliente, Veiculo, Mecanico, Servico, Peca } from '../../types';
 import ordemServicoService from '../../services/ordemServicoService';
@@ -37,10 +36,8 @@ import veiculoService from '../../services/veiculoService';
 import mecanicoService from '../../services/mecanicoService';
 import servicoService from '../../services/servicoService';
 import pecaService from '../../services/pecaService';
-import { useNavigate } from 'react-router-dom';
 
 export default function OrdemServico() {
-  const navigate = useNavigate();
   const [ordens, setOrdens] = useState<OrdemServicoType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
