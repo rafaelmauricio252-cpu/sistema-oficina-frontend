@@ -14,7 +14,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { Grid2 as Grid } from '@mui/material';
+import {  Grid as Grid } from '@mui/material';
 import {
   People as PeopleIcon,
   DirectionsCar as DirectionsCarIcon,
