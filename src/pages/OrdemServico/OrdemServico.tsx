@@ -22,12 +22,13 @@ import {
   MenuItem,
   Autocomplete,
 } from '@mui/material';
-import { Grid } from '@mui/material';
+import { Grid2 as Grid } from '@mui/material';
 import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Remove as RemoveIcon,
 } from '@mui/icons-material';
 import type { OrdemServico as OrdemServicoType, OSFormData, Cliente, Veiculo, Mecanico, Servico, Peca } from '../../types';
 import ordemServicoService from '../../services/ordemServicoService';
@@ -36,8 +37,10 @@ import veiculoService from '../../services/veiculoService';
 import mecanicoService from '../../services/mecanicoService';
 import servicoService from '../../services/servicoService';
 import pecaService from '../../services/pecaService';
+import { useNavigate } from 'react-router-dom';
 
 export default function OrdemServico() {
+  const navigate = useNavigate();
   const [ordens, setOrdens] = useState<OrdemServicoType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -343,13 +346,13 @@ export default function OrdemServico() {
           {selectedOS && (
             <Box sx={{ pt: 2 }}>
               <Grid container spacing={2}>
-                <Grid xs={12} sm={6} item>
+                <Grid xs={12} sm={6} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Cliente
                   </Typography>
                   <Typography variant="body1">{selectedOS.cliente?.nome}</Typography>
                 </Grid>
-                <Grid xs={12} sm={6} item>
+                <Grid xs={12} sm={6} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Veículo
                   </Typography>
@@ -359,26 +362,26 @@ export default function OrdemServico() {
                       : 'N/A'}
                   </Typography>
                 </Grid>
-                <Grid xs={12} sm={6} item>
+                <Grid xs={12} sm={6} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Mecânico
                   </Typography>
                   <Typography variant="body1">{selectedOS.mecanico?.nome}</Typography>
                 </Grid>
-                <Grid xs={12} sm={6} item>
+                <Grid xs={12} sm={6} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Status
                   </Typography>
                   <Chip label={selectedOS.status} color={getStatusColor(selectedOS.status)} size="small" />
                 </Grid>
-                <Grid xs={12} sm={6} item>
+                <Grid xs={12} sm={6} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Data de Abertura
                   </Typography>
                   <Typography variant="body1">{formatDate(selectedOS.data_abertura)}</Typography>
                 </Grid>
                 {selectedOS.data_conclusao && (
-                  <Grid xs={12} sm={6} item>
+                  <Grid xs={12} sm={6} component="div">
                     <Typography variant="subtitle2" color="textSecondary">
                       Data de Conclusão
                     </Typography>
@@ -386,7 +389,7 @@ export default function OrdemServico() {
                   </Grid>
                 )}
                 {selectedOS.descricao_problema && (
-                  <Grid item xs={12}>
+                  <Grid component="div" xs={12}>
                     <Typography variant="subtitle2" color="textSecondary">
                       Descrição do Problema
                     </Typography>
@@ -394,7 +397,7 @@ export default function OrdemServico() {
                   </Grid>
                 )}
                 {selectedOS.servicos && selectedOS.servicos.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid component="div" xs={12}>
                     <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                       Serviços
                     </Typography>
@@ -425,7 +428,7 @@ export default function OrdemServico() {
                   </Grid>
                 )}
                 {selectedOS.pecas && selectedOS.pecas.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid component="div" xs={12}>
                     <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                       Peças
                     </Typography>
@@ -455,7 +458,7 @@ export default function OrdemServico() {
                     </TableContainer>
                   </Grid>
                 )}
-                <Grid item xs={12}>
+                <Grid component="div" xs={12}>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
                     <Typography variant="h6">
                       Desconto: {formatCurrency(selectedOS.desconto)}
@@ -507,7 +510,7 @@ export default function OrdemServico() {
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Grid container spacing={2}>
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <Autocomplete
                   options={clientes}
                   getOptionLabel={(option) => `${option.nome} - ${option.cpf_cnpj}`}
@@ -518,7 +521,7 @@ export default function OrdemServico() {
                   renderInput={(params) => <TextField {...params} label="Cliente *" />}
                 />
               </Grid>
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <Autocomplete
                   options={veiculos}
                   getOptionLabel={(option) => `${option.placa} - ${option.marca} ${option.modelo}`}
@@ -529,7 +532,7 @@ export default function OrdemServico() {
                   renderInput={(params) => <TextField {...params} label="Veículo *" />}
                 />
               </Grid>
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <Autocomplete
                   options={mecanicos}
                   getOptionLabel={(option) => option.nome}
@@ -540,7 +543,7 @@ export default function OrdemServico() {
                   renderInput={(params) => <TextField {...params} label="Mecânico *" />}
                 />
               </Grid>
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   select
                   label="Status"
@@ -554,7 +557,7 @@ export default function OrdemServico() {
                   <MenuItem value="Pago">Pago</MenuItem>
                 </TextField>
               </Grid>
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   type="date"
                   label="Data de Abertura"
@@ -564,7 +567,7 @@ export default function OrdemServico() {
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid component="div" xs={12}>
                 <TextField
                   label="Descrição do Problema"
                   value={formData.descricao_problema || ''}
@@ -574,7 +577,7 @@ export default function OrdemServico() {
                   rows={3}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid component="div" xs={12}>
                 <TextField
                   label="Observações"
                   value={formData.observacoes || ''}
@@ -586,7 +589,7 @@ export default function OrdemServico() {
               </Grid>
 
               {/* Seção de Serviços */}
-              <Grid item xs={12}>
+              <Grid component="div" xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                   <Typography variant="h6">Serviços</Typography>
                   <Button startIcon={<AddIcon />} onClick={handleAddServico} size="small">
@@ -597,23 +600,23 @@ export default function OrdemServico() {
                   <Box>
                     {formData.servicos.map((servico, index) => (
                       <Grid container spacing={2} key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                        <Grid item xs={12} sm={5}>
+                        <Grid component="div" xs={12} sm={5}>
                           <Autocomplete
                             options={servicos}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao_padrao)}`}
+                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
                             value={servicos.find((s) => s.id === servico.servico_id) || null}
                             onChange={(_, newValue) => {
                               const newServicos = [...(formData.servicos || [])];
                               newServicos[index] = {
                                 ...newServicos[index],
                                 servico_id: newValue?.id || 0,
-                                preco_unitario: newValue?.preco ? parseFloat(newValue.preco_padrao) : 0,
+                                preco_unitario: newValue?.preco ? parseFloat(newValue.preco) : 0,
                               };
                               setFormData({ ...formData, servicos: newServicos });
                             }}                            renderInput={(params) => <TextField {...params} label="Serviço" size="small" />}
                           />
                         </Grid>
-                        <Grid item xs={6} sm={2}>
+                        <Grid component="div" xs={6} sm={2}>
                           <TextField
                             type="number"
                             label="Quantidade"
@@ -623,7 +626,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid item xs={6} sm={3}>
+                        <Grid component="div" xs={6} sm={3}>
                           <TextField
                             type="number"
                             label="Preço Unit."
@@ -633,7 +636,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid item xs={12} sm={2}>
+                        <Grid component="div" xs={12} sm={2}>
                           <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                             <Typography variant="body2" sx={{ mr: 1 }}>
                               {formatCurrency(servico.quantidade * servico.preco_unitario)}
@@ -650,7 +653,7 @@ export default function OrdemServico() {
               </Grid>
 
               {/* Seção de Peças */}
-              <Grid item xs={12}>
+              <Grid component="div" xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                   <Typography variant="h6">Peças</Typography>
                   <Button startIcon={<AddIcon />} onClick={handleAddPeca} size="small">
@@ -661,10 +664,10 @@ export default function OrdemServico() {
                   <Box>
                     {formData.pecas.map((peca, index) => (
                       <Grid container spacing={2} key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                        <Grid item xs={12} sm={5}>
+                        <Grid component="div" xs={12} sm={5}>
                           <Autocomplete
                             options={pecas}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao_padrao_venda)}`}
+                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_venda)}`}
                             value={pecas.find((p) => p.id === peca.peca_id) || null}
                             onChange={(_, newValue) => {
                               const newPecas = [...(formData.pecas || [])];
@@ -678,7 +681,7 @@ export default function OrdemServico() {
                             renderInput={(params) => <TextField {...params} label="Peça" size="small" />}
                           />
                         </Grid>
-                        <Grid item xs={6} sm={2}>
+                        <Grid component="div" xs={6} sm={2}>
                           <TextField
                             type="number"
                             label="Quantidade"
@@ -688,7 +691,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid item xs={6} sm={3}>
+                        <Grid component="div" xs={6} sm={3}>
                           <TextField
                             type="number"
                             label="Preço Unit."
@@ -698,7 +701,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid item xs={12} sm={2}>
+                        <Grid component="div" xs={12} sm={2}>
                           <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                             <Typography variant="body2" sx={{ mr: 1 }}>
                               {formatCurrency(peca.quantidade * peca.preco_unitario)}
@@ -715,7 +718,7 @@ export default function OrdemServico() {
               </Grid>
 
               {/* Desconto e Total */}
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   type="number"
                   label="Desconto (R$)"
@@ -724,7 +727,7 @@ export default function OrdemServico() {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12} sm={6} item>
+              <Grid xs={12} sm={6} component="div">
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                   <Typography variant="h6">
                     Total: {formatCurrency(
