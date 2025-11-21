@@ -42,9 +42,9 @@ export interface Servico {\n  id: number;\n  nome: string;\n  descricao?: string
   id: number;
   nome: string;
   descricao?: string;
-  preco_padrao: number;\n  preco: number;\n  preco: number; // Adicionando esta propriedade para compatibilidade com os componentes
+  preco_padrao: number;
   tempo_estimado?: number;
-  ativo: boolean;\n  preco: number;
+  ativo: boolean;
   criado_em: string;
   atualizado_em: string;
 }
@@ -198,9 +198,9 @@ export interface MecanicoFormData {
 export interface ServicoFormData {
   nome: string;
   descricao?: string;
-  preco_padrao: number;\n  preco: number;\n  preco: number; // Adicionando esta propriedade para compatibilidade com os componentes
+  preco_padrao: number;
   tempo_estimado?: number;
-  ativo: boolean;\n  preco: number;
+  ativo: boolean;
 }
 
 export interface PecaFormData {

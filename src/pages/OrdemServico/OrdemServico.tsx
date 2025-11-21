@@ -603,7 +603,7 @@ export default function OrdemServico() {
                         <Grid component="div" xs={12} sm={5}>
                           <Autocomplete
                             options={servicos}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
+                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao_padrao)}`}
                             value={servicos.find((s) => s.id === servico.servico_id) || null}
                             onChange={(_, newValue) => {
                               const newServicos = [...(formData.servicos || [])];
@@ -667,7 +667,7 @@ export default function OrdemServico() {
                         <Grid component="div" xs={12} sm={5}>
                           <Autocomplete
                             options={pecas}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao_venda)}`}
+                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao_padrao_venda)}`}
                             value={pecas.find((p) => p.id === peca.peca_id) || null}
                             onChange={(_, newValue) => {
                               const newPecas = [...(formData.pecas || [])];
