@@ -14,11 +14,9 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-<<<<<<< Updated upstream
-import {  Grid as Grid } from '@mui/material';
-=======
+
 import { Grid, Box, Paper, Typography } from '@mui/material';
->>>>>>> Stashed changes
+
 import {
   People as PeopleIcon,
   DirectionsCar as DirectionsCarIcon,
@@ -129,7 +127,7 @@ export default function Dashboard() {
 
       {/* Cards de estatísticas principais */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} grid={{ md: 3 }} component="div">
+        <Grid grid={{ xs: 12, sm: 6, md: 3 }} component="div">
           <StatCard
             title="Total de Clientes"
             value={stats.total_clientes}
@@ -137,7 +135,7 @@ export default function Dashboard() {
             color="#1976d2"
           />
         </Grid>
-        <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} grid={{ md: 3 }} component="div">
+        <Grid grid={{ xs: 12, sm: 6, md: 3 }} component="div">
           <StatCard
             title="Total de Veículos"
             value={stats.total_veiculos}
@@ -145,7 +143,7 @@ export default function Dashboard() {
             color="#2e7d32"
           />
         </Grid>
-        <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} grid={{ md: 3 }} component="div">
+        <Grid grid={{ xs: 12, sm: 6, md: 3 }} component="div">
           <StatCard
             title="Total de Mecânicos"
             value={stats.total_mecanicos}
@@ -153,7 +151,7 @@ export default function Dashboard() {
             color="#ed6c02"
           />
         </Grid>
-        <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} grid={{ md: 3 }} component="div">
+        <Grid grid={{ xs: 12, sm: 6, md: 3 }} component="div">
           <StatCard
             title="OS do Mês"
             value={stats.os_mes_atual.total}
@@ -165,7 +163,7 @@ export default function Dashboard() {
 
       {/* Faturamento do mês */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid grid={{ xs: 12 }} grid={{ md: 6 }} component="div">
+        <Grid grid={{ xs: 12, md: 6 }} component="div">
           <Paper elevation={3} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Faturamento do Mês Atual
@@ -175,7 +173,7 @@ export default function Dashboard() {
             </Typography>
           </Paper>
         </Grid>
-        <Grid grid={{ xs: 12 }} grid={{ md: 6 }} component="div">
+        <Grid grid={{ xs: 12, md: 6 }} component="div">
           <Paper elevation={3} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Ordens de Serviço por Status
@@ -206,7 +204,7 @@ export default function Dashboard() {
 
       {/* Ranking de mecânicos */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid grid={{ xs: 12 }} grid={{ md: 6 }} component="div">
+        <Grid grid={{ xs: 12, md: 6 }} component="div">
           <Paper elevation={3} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Ranking de Mecânicos
@@ -235,7 +233,7 @@ export default function Dashboard() {
         </Grid>
 
         {/* Peças com estoque baixo */}
-        <Grid grid={{ xs: 12 }} grid={{ md: 6 }} component="div">
+        <Grid grid={{ xs: 12, md: 6 }} component="div">
           <Paper elevation={3} sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Peças com Estoque Baixo

@@ -200,7 +200,7 @@ export default function Pecas() {
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Grid container spacing={2}>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   label="Nome"
                   value={formData.nome}
@@ -209,7 +209,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   label="Número da Peça"
                   value={formData.numero_peca}
@@ -228,7 +228,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   label="Preço de Custo"
                   type="number"
@@ -238,7 +238,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   label="Preço de Venda"
                   type="number"
@@ -248,7 +248,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 4 }}>
+              <Grid component="div" grid={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Quantidade em Estoque"
                   type="number"
@@ -258,7 +258,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 4 }}>
+              <Grid component="div" grid={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Estoque Mínimo"
                   type="number"
@@ -268,7 +268,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 4 }}>
+              <Grid component="div" grid={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Localização"
                   value={formData.localizacao}

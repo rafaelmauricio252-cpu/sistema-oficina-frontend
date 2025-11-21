@@ -346,13 +346,13 @@ export default function OrdemServico() {
           {selectedOS && (
             <Box sx={{ pt: 2 }}>
               <Grid container spacing={2}>
-                <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+                <Grid grid={{ xs: 12, sm: 6 }} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Cliente
                   </Typography>
                   <Typography variant="body1">{selectedOS.cliente?.nome}</Typography>
                 </Grid>
-                <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+                <Grid grid={{ xs: 12, sm: 6 }} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Veículo
                   </Typography>
@@ -362,26 +362,26 @@ export default function OrdemServico() {
                       : 'N/A'}
                   </Typography>
                 </Grid>
-                <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+                <Grid grid={{ xs: 12, sm: 6 }} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Mecânico
                   </Typography>
                   <Typography variant="body1">{selectedOS.mecanico?.nome}</Typography>
                 </Grid>
-                <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+                <Grid grid={{ xs: 12, sm: 6 }} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Status
                   </Typography>
                   <Chip label={selectedOS.status} color={getStatusColor(selectedOS.status)} size="small" />
                 </Grid>
-                <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+                <Grid grid={{ xs: 12, sm: 6 }} component="div">
                   <Typography variant="subtitle2" color="textSecondary">
                     Data de Abertura
                   </Typography>
                   <Typography variant="body1">{formatDate(selectedOS.data_abertura)}</Typography>
                 </Grid>
                 {selectedOS.data_conclusao && (
-                  <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+                  <Grid grid={{ xs: 12, sm: 6 }} component="div">
                     <Typography variant="subtitle2" color="textSecondary">
                       Data de Conclusão
                     </Typography>
@@ -510,7 +510,7 @@ export default function OrdemServico() {
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Grid container spacing={2}>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <Autocomplete
                   options={clientes}
                   getOptionLabel={(option) => `${option.nome} - ${option.cpf_cnpj}`}
@@ -521,7 +521,7 @@ export default function OrdemServico() {
                   renderInput={(params) => <TextField {...params} label="Cliente *" />}
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <Autocomplete
                   options={veiculos}
                   getOptionLabel={(option) => `${option.placa} - ${option.marca} ${option.modelo}`}
@@ -532,7 +532,7 @@ export default function OrdemServico() {
                   renderInput={(params) => <TextField {...params} label="Veículo *" />}
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <Autocomplete
                   options={mecanicos}
                   getOptionLabel={(option) => option.nome}
@@ -543,7 +543,7 @@ export default function OrdemServico() {
                   renderInput={(params) => <TextField {...params} label="Mecânico *" />}
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   select
                   label="Status"
@@ -557,7 +557,7 @@ export default function OrdemServico() {
                   <MenuItem value="Pago">Pago</MenuItem>
                 </TextField>
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   type="date"
                   label="Data de Abertura"
@@ -600,7 +600,7 @@ export default function OrdemServico() {
                   <Box>
                     {formData.servicos.map((servico, index) => (
                       <Grid container spacing={2} key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                        <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 5 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 5 }}>
                           <Autocomplete
                             options={servicos}
                             getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
@@ -616,7 +616,7 @@ export default function OrdemServico() {
                             }}                            renderInput={(params) => <TextField {...params} label="Serviço" size="small" />}
                           />
                         </Grid>
-                        <Grid component="div" grid={{ xs: 6 }} grid={{ sm: 2 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 2 }}>
                           <TextField
                             type="number"
                             label="Quantidade"
@@ -626,7 +626,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid component="div" grid={{ xs: 6 }} grid={{ sm: 3 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 3 }}>
                           <TextField
                             type="number"
                             label="Preço Unit."
@@ -636,7 +636,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 2 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 2 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                             <Typography variant="body2" sx={{ mr: 1 }}>
                               {formatCurrency(servico.quantidade * servico.preco_unitario)}
@@ -664,7 +664,7 @@ export default function OrdemServico() {
                   <Box>
                     {formData.pecas.map((peca, index) => (
                       <Grid container spacing={2} key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                        <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 5 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 5 }}>
                           <Autocomplete
                             options={pecas}
                             getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_venda)}`}
@@ -681,7 +681,7 @@ export default function OrdemServico() {
                             renderInput={(params) => <TextField {...params} label="Peça" size="small" />}
                           />
                         </Grid>
-                        <Grid component="div" grid={{ xs: 6 }} grid={{ sm: 2 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 2 }}>
                           <TextField
                             type="number"
                             label="Quantidade"
@@ -691,7 +691,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid component="div" grid={{ xs: 6 }} grid={{ sm: 3 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 3 }}>
                           <TextField
                             type="number"
                             label="Preço Unit."
@@ -701,7 +701,7 @@ export default function OrdemServico() {
                             fullWidth
                           />
                         </Grid>
-                        <Grid component="div" grid={{ xs: 12 }} grid={{ sm: 2 }}>
+                        <Grid component="div" grid={{ xs: 12, sm: 2 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                             <Typography variant="body2" sx={{ mr: 1 }}>
                               {formatCurrency(peca.quantidade * peca.preco_unitario)}
@@ -718,7 +718,7 @@ export default function OrdemServico() {
               </Grid>
 
               {/* Desconto e Total */}
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <TextField
                   type="number"
                   label="Desconto (R$)"
@@ -727,7 +727,7 @@ export default function OrdemServico() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12 }} grid={{ sm: 6 }} component="div">
+              <Grid grid={{ xs: 12, sm: 6 }} component="div">
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                   <Typography variant="h6">
                     Total: {formatCurrency(
