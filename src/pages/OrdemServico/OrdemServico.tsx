@@ -22,7 +22,7 @@ import {
   MenuItem,
   Autocomplete,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
+import { Grid2 as Grid } from '@mui/material';
 import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
@@ -603,7 +603,7 @@ export default function OrdemServico() {
                         <Grid component="div" xs={12} sm={5}>
                           <Autocomplete
                             options={servicos}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco)}`}
+                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
                             value={servicos.find((s) => s.id === servico.servico_id) || null}
                             onChange={(_, newValue) => {
                               const newServicos = [...(formData.servicos || [])];
