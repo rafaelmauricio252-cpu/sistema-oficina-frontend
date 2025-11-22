@@ -131,7 +131,7 @@ export interface DashboardStats {
     total: string;
     faturamento: number;
   };
-  mecanicos_ranking: Array<{
+  total_mecanicos: number;`n  mecanicos_ranking: Array<{
     nome: string;
     total_os: string;
     valor_total: number;
