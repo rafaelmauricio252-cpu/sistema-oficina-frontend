@@ -752,3 +752,4 @@ export default function OrdemServico() {
   );
 }
 
+"// Corre‡Æo de compila‡Æo TypeScript - Sintaxe Grid atualizada"  
