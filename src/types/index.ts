@@ -131,7 +131,7 @@ export interface DashboardStats {
     total: string;
     faturamento: number;
   };
-    total_mecanicos: number;\n    mecanicos_ranking: Array<{
+  total_mecanicos: number;`n  mecanicos_ranking: Array<{
     nome: string;
     total_os: string;
     valor_total: number;
@@ -234,4 +234,4 @@ export interface Mecanico { id: number; nome: string; especialidade: string; tel
 export interface MecanicoFormData { nome: string; especialidade: string; telefone: string; email?: string; }
 export interface OrdemServico { id: number; cliente_id: number; veiculo_id: number; mecanico_id: number; data_abertura: string; data_conclusao?: string; status: string; descricao_problema?: string; observacoes?: string; forma_pagamento?: string; desconto: number; valor_total: number; criado_em: string; atualizado_em: string; cliente?: Cliente; veiculo?: Veiculo; mecanico?: Mecanico; }
 export interface OSFormData { cliente_id: number; veiculo_id: number; mecanico_id: number; data_abertura: string; data_conclusao?: string; status: string; descricao_problema?: string; observacoes?: string; forma_pagamento?: string; desconto?: number; servicos?: Array<{ servico_id: number; preco_unitario: number; quantidade: number; }>; pecas?: Array<{ peca_id: number; quantidade: number; preco_unitario: number; }>; }
-"// Correï¿½ï¿½o de erro de compilaï¿½ï¿½o TypeScript"  
+"// Corre‡Æo de erro de compila‡Æo TypeScript"  
