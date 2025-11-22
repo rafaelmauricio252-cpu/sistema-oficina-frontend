@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';;
+import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -31,7 +31,7 @@ const drawerWidth = 260;
 
 interface MenuItem {
   text: string;
-  icon: ReactElement;
+  icon: JSX.Element;
   path: string;
 }
 

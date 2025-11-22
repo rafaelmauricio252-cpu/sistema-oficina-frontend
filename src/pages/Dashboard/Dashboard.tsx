@@ -14,7 +14,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
+import { Grid } from '@mui/material';
 import {
   People as PeopleIcon,
   DirectionsCar as DirectionsCarIcon,
@@ -144,7 +144,7 @@ export default function Dashboard() {
         <Grid xs={12} sm={6} md={3} component="div">
           <StatCard
             title="Total de Mecânicos"
-            value={stats.total_mecanicos}
+            value={stats.total_clientes}
             icon={<BuildIcon sx={{ fontSize: 40 }} />}
             color="#ed6c02"
           />
