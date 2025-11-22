@@ -20,7 +20,7 @@ import {
   CircularProgress,
   Chip,
 } from '@mui/material';
-import { Grid as Grid } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
 import type { Peca, PecaFormData } from '../../types';
 import pecaService from '../../services/pecaService';
@@ -200,7 +200,7 @@ export default function Pecas() {
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Grid container spacing={2}>
-              <Grid grid={{ xs: 12, sm: 6 }} component="div">
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   label="Nome"
                   value={formData.nome}
@@ -209,7 +209,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12, sm: 6 }} component="div">
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   label="Número da Peça"
                   value={formData.numero_peca}
@@ -218,7 +218,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12 }}>
+              <Grid component="div" xs={12}>
                 <TextField
                   label="Descrição"
                   value={formData.descricao}
@@ -228,7 +228,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12, sm: 6 }} component="div">
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   label="Preço de Custo"
                   type="number"
@@ -238,7 +238,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid grid={{ xs: 12, sm: 6 }} component="div">
+              <Grid xs={12} sm={6} component="div">
                 <TextField
                   label="Preço de Venda"
                   type="number"
@@ -248,7 +248,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12, sm: 4 }}>
+              <Grid component="div" xs={12} sm={4}>
                 <TextField
                   label="Quantidade em Estoque"
                   type="number"
@@ -258,7 +258,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12, sm: 4 }}>
+              <Grid component="div" xs={12} sm={4}>
                 <TextField
                   label="Estoque Mínimo"
                   type="number"
@@ -268,7 +268,7 @@ export default function Pecas() {
                   fullWidth
                 />
               </Grid>
-              <Grid component="div" grid={{ xs: 12, sm: 4 }}>
+              <Grid component="div" xs={12} sm={4}>
                 <TextField
                   label="Localização"
                   value={formData.localizacao}
