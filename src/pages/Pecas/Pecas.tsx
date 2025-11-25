@@ -20,7 +20,6 @@ import {
   CircularProgress,
   Chip,
 } from '@mui/material';
-import { Grid } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
 import type { Peca, PecaFormData } from '../../types';
 import pecaService from '../../services/pecaService';
@@ -198,85 +197,71 @@ export default function Pecas() {
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>{editingPeca ? 'Editar Peça' : 'Nova Peça'}</DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  label="Nome"
-                  value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  label="Número da Peça"
-                  value={formData.numero_peca}
-                  onChange={(e) => setFormData({ ...formData, numero_peca: e.target.value })}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid component="div" xs={12}>
-                <TextField
-                  label="Descrição"
-                  value={formData.descricao}
-                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                  multiline
-                  rows={2}
-                  fullWidth
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  label="Preço de Custo"
-                  type="number"
-                  value={formData.preco_custo}
-                  onChange={(e) => setFormData({ ...formData, preco_custo: Number(e.target.value) })}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  label="Preço de Venda"
-                  type="number"
-                  value={formData.preco_venda}
-                  onChange={(e) => setFormData({ ...formData, preco_venda: Number(e.target.value) })}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid component="div" xs={12} sm={4}>
-                <TextField
-                  label="Quantidade em Estoque"
-                  type="number"
-                  value={formData.quantidade_estoque}
-                  onChange={(e) => setFormData({ ...formData, quantidade_estoque: Number(e.target.value) })}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid component="div" xs={12} sm={4}>
-                <TextField
-                  label="Estoque Mínimo"
-                  type="number"
-                  value={formData.estoque_minimo}
-                  onChange={(e) => setFormData({ ...formData, estoque_minimo: Number(e.target.value) })}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid component="div" xs={12} sm={4}>
-                <TextField
-                  label="Localização"
-                  value={formData.localizacao}
-                  onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
+          <Box sx={{ pt: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2 }}>
+            <TextField
+              label="Nome"
+              value={formData.nome}
+              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Número da Peça"
+              value={formData.numero_peca}
+              onChange={(e) => setFormData({ ...formData, numero_peca: e.target.value })}
+              required
+              fullWidth
+            />
+            <Box sx={{ gridColumn: '1 / -1' }}>
+              <TextField
+                label="Descrição"
+                value={formData.descricao}
+                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                multiline
+                rows={2}
+                fullWidth
+              />
+            </Box>
+            <TextField
+              label="Preço de Custo"
+              type="number"
+              value={formData.preco_custo}
+              onChange={(e) => setFormData({ ...formData, preco_custo: Number(e.target.value) })}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Preço de Venda"
+              type="number"
+              value={formData.preco_venda}
+              onChange={(e) => setFormData({ ...formData, preco_venda: Number(e.target.value) })}
+              required
+              fullWidth
+            />
+            <Box sx={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+              <TextField
+                label="Quantidade em Estoque"
+                type="number"
+                value={formData.quantidade_estoque}
+                onChange={(e) => setFormData({ ...formData, quantidade_estoque: Number(e.target.value) })}
+                required
+                fullWidth
+              />
+              <TextField
+                label="Estoque Mínimo"
+                type="number"
+                value={formData.estoque_minimo}
+                onChange={(e) => setFormData({ ...formData, estoque_minimo: Number(e.target.value) })}
+                required
+                fullWidth
+              />
+              <TextField
+                label="Localização"
+                value={formData.localizacao}
+                onChange={(e) => setFormData({ ...formData, localizacao: e.target.value })}
+                fullWidth
+              />
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>

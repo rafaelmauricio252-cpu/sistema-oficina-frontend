@@ -31,7 +31,7 @@ const drawerWidth = 260;
 
 interface MenuItem {
   text: string;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   path: string;
 }
 

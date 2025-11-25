@@ -14,7 +14,6 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { Grid } from '@mui/material';
 import {
   People as PeopleIcon,
   DirectionsCar as DirectionsCarIcon,
@@ -27,7 +26,7 @@ import dashboardService from '../../services/dashboardService';
 interface StatCardProps {
   title: string;
   value: number | string;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   color: string;
 }
 
@@ -124,152 +123,157 @@ export default function Dashboard() {
       </Typography>
 
       {/* Cards de estatísticas principais */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid xs={12} sm={6} md={3} component="div">
-          <StatCard
-            title="Total de Clientes"
-            value={stats.total_clientes}
-            icon={<PeopleIcon sx={{ fontSize: 40 }} />}
-            color="#1976d2"
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={3} component="div">
-          <StatCard
-            title="Total de Veículos"
-            value={stats.total_veiculos}
-            icon={<DirectionsCarIcon sx={{ fontSize: 40 }} />}
-            color="#2e7d32"
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={3} component="div">
-          <StatCard
-            title="Total de Mecânicos"
-            value={stats.total_clientes}
-            icon={<BuildIcon sx={{ fontSize: 40 }} />}
-            color="#ed6c02"
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={3} component="div">
-          <StatCard
-            title="OS do Mês"
-            value={stats.os_mes_atual.total}
-            icon={<AssessmentIcon sx={{ fontSize: 40 }} />}
-            color="#9c27b0"
-          />
-        </Grid>
-      </Grid>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        <StatCard
+          title="Total de Clientes"
+          value={stats.total_clientes}
+          icon={<PeopleIcon sx={{ fontSize: 40 }} />}
+          color="#1976d2"
+        />
+        <StatCard
+          title="Total de Veículos"
+          value={stats.total_veiculos}
+          icon={<DirectionsCarIcon sx={{ fontSize: 40 }} />}
+          color="#2e7d32"
+        />
+        <StatCard
+          title="Total de Mecânicos"
+          value={stats.total_clientes}
+          icon={<BuildIcon sx={{ fontSize: 40 }} />}
+          color="#ed6c02"
+        />
+        <StatCard
+          title="OS do Mês"
+          value={stats.os_mes_atual.total}
+          icon={<AssessmentIcon sx={{ fontSize: 40 }} />}
+          color="#9c27b0"
+        />
+      </Box>
 
       {/* Faturamento do mês */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid xs={12} md={6} component="div">
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Faturamento do Mês Atual
-            </Typography>
-            <Typography variant="h4" color="primary">
-              {formatCurrency(stats.os_mes_atual.faturamento)}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid xs={12} md={6} component="div">
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Ordens de Serviço por Status
-            </Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Status</TableCell>
-                    <TableCell align="right">Quantidade</TableCell>
-                    <TableCell align="right">Valor Total</TableCell>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Faturamento do Mês Atual
+          </Typography>
+          <Typography variant="h4" color="primary">
+            {formatCurrency(stats.os_mes_atual.faturamento)}
+          </Typography>
+        </Paper>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Ordens de Serviço por Status
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Status</TableCell>
+                  <TableCell align="right">Quantidade</TableCell>
+                  <TableCell align="right">Valor Total</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {stats.os_por_status.map((item) => (
+                  <TableRow key={item.status}>
+                    <TableCell>{item.status}</TableCell>
+                    <TableCell align="right">{item.total}</TableCell>
+                    <TableCell align="right">{formatCurrency(item.valor_total)}</TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {stats.os_por_status.map((item) => (
-                    <TableRow key={item.status}>
-                      <TableCell>{item.status}</TableCell>
-                      <TableCell align="right">{item.total}</TableCell>
-                      <TableCell align="right">{formatCurrency(item.valor_total)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Box>
 
       {/* Ranking de mecânicos */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid xs={12} md={6} component="div">
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Ranking de Mecânicos
-            </Typography>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Ranking de Mecânicos
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Mecânico</TableCell>
+                  <TableCell align="right">Total OS</TableCell>
+                  <TableCell align="right">Valor Total</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {stats.mecanicos_ranking.map((mecanico) => (
+                  <TableRow key={mecanico.nome}>
+                    <TableCell>{mecanico.nome}</TableCell>
+                    <TableCell align="right">{mecanico.total_os}</TableCell>
+                    <TableCell align="right">{formatCurrency(mecanico.valor_total)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+
+        {/* Peças com estoque baixo */}
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Peças com Estoque Baixo
+          </Typography>
+          {Array.isArray(stats.pecas_estoque_baixo) && stats.pecas_estoque_baixo.length > 0 ? (
             <TableContainer>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Mecânico</TableCell>
-                    <TableCell align="right">Total OS</TableCell>
-                    <TableCell align="right">Valor Total</TableCell>
+                    <TableCell>Peça</TableCell>
+                    <TableCell align="right">Estoque</TableCell>
+                    <TableCell align="right">Mínimo</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {stats.mecanicos_ranking.map((mecanico) => (
-                    <TableRow key={mecanico.nome}>
-                      <TableCell>{mecanico.nome}</TableCell>
-                      <TableCell align="right">{mecanico.total_os}</TableCell>
-                      <TableCell align="right">{formatCurrency(mecanico.valor_total)}</TableCell>
+                  {stats.pecas_estoque_baixo.map((peca: any) => (
+                    <TableRow key={peca.numero_peca}>
+                      <TableCell>
+                        <Typography variant="body2">{peca.nome}</Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          {peca.numero_peca}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Typography color="error">{peca.quantidade_estoque}</Typography>
+                      </TableCell>
+                      <TableCell align="right">{peca.estoque_minimo}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-          </Paper>
-        </Grid>
-
-        {/* Peças com estoque baixo */}
-        <Grid xs={12} md={6} component="div">
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Peças com Estoque Baixo
-            </Typography>
-            {stats.pecas_estoque_baixo.length > 0 ? (
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Peça</TableCell>
-                      <TableCell align="right">Estoque</TableCell>
-                      <TableCell align="right">Mínimo</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {stats.pecas_estoque_baixo.map((peca) => (
-                      <TableRow key={peca.numero_peca}>
-                        <TableCell>
-                          <Typography variant="body2">{peca.nome}</Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {peca.numero_peca}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography color="error">{peca.quantidade_estoque}</Typography>
-                        </TableCell>
-                        <TableCell align="right">{peca.estoque_minimo}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            ) : (
-              <Typography color="textSecondary">Nenhuma peça com estoque baixo</Typography>
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
+          ) : (
+            <Typography color="textSecondary">Nenhuma peça com estoque baixo</Typography>
+          )}
+        </Paper>
+      </Box>
     </Box>
   );
 }

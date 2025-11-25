@@ -22,13 +22,11 @@ import {
   MenuItem,
   Autocomplete,
 } from '@mui/material';
-import { Grid } from '@mui/material';
 import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Remove as RemoveIcon,
 } from '@mui/icons-material';
 import type { OrdemServico as OrdemServicoType, OSFormData, Cliente, Veiculo, Mecanico, Servico, Peca } from '../../types';
 import ordemServicoService from '../../services/ordemServicoService';
@@ -37,10 +35,8 @@ import veiculoService from '../../services/veiculoService';
 import mecanicoService from '../../services/mecanicoService';
 import servicoService from '../../services/servicoService';
 import pecaService from '../../services/pecaService';
-import { useNavigate } from 'react-router-dom';
 
 export default function OrdemServico() {
-  const navigate = useNavigate();
   const [ordens, setOrdens] = useState<OrdemServicoType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -345,14 +341,19 @@ export default function OrdemServico() {
         <DialogContent>
           {selectedOS && (
             <Box sx={{ pt: 2 }}>
-              <Grid container spacing={2}>
-                <Grid xs={12} sm={6} component="div">
+              <Box sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                gap: 2,
+                mb: 2
+              }}>
+                <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     Cliente
                   </Typography>
                   <Typography variant="body1">{selectedOS.cliente?.nome}</Typography>
-                </Grid>
-                <Grid xs={12} sm={6} component="div">
+                </Box>
+                <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     Veículo
                   </Typography>
@@ -361,114 +362,112 @@ export default function OrdemServico() {
                       ? `${selectedOS.veiculo.marca} ${selectedOS.veiculo.modelo} - ${selectedOS.veiculo.placa}`
                       : 'N/A'}
                   </Typography>
-                </Grid>
-                <Grid xs={12} sm={6} component="div">
+                </Box>
+                <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     Mecânico
                   </Typography>
                   <Typography variant="body1">{selectedOS.mecanico?.nome}</Typography>
-                </Grid>
-                <Grid xs={12} sm={6} component="div">
+                </Box>
+                <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     Status
                   </Typography>
                   <Chip label={selectedOS.status} color={getStatusColor(selectedOS.status)} size="small" />
-                </Grid>
-                <Grid xs={12} sm={6} component="div">
+                </Box>
+                <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     Data de Abertura
                   </Typography>
                   <Typography variant="body1">{formatDate(selectedOS.data_abertura)}</Typography>
-                </Grid>
+                </Box>
                 {selectedOS.data_conclusao && (
-                  <Grid xs={12} sm={6} component="div">
+                  <Box>
                     <Typography variant="subtitle2" color="textSecondary">
                       Data de Conclusão
                     </Typography>
                     <Typography variant="body1">{formatDate(selectedOS.data_conclusao)}</Typography>
-                  </Grid>
-                )}
-                {selectedOS.descricao_problema && (
-                  <Grid component="div" xs={12}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      Descrição do Problema
-                    </Typography>
-                    <Typography variant="body1">{selectedOS.descricao_problema}</Typography>
-                  </Grid>
-                )}
-                {selectedOS.servicos && selectedOS.servicos.length > 0 && (
-                  <Grid component="div" xs={12}>
-                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                      Serviços
-                    </Typography>
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Serviço</TableCell>
-                            <TableCell align="right">Quantidade</TableCell>
-                            <TableCell align="right">Preço Unit.</TableCell>
-                            <TableCell align="right">Subtotal</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {selectedOS.servicos.map((s) => (
-                            <TableRow key={s.id}>
-                              <TableCell>{s.servico?.nome}</TableCell>
-                              <TableCell align="right">{s.quantidade}</TableCell>
-                              <TableCell align="right">{formatCurrency(s.preco_servico)}</TableCell>
-                              <TableCell align="right">
-                                {formatCurrency(s.preco_servico * s.quantidade)}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Grid>
-                )}
-                {selectedOS.pecas && selectedOS.pecas.length > 0 && (
-                  <Grid component="div" xs={12}>
-                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                      Peças
-                    </Typography>
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Peça</TableCell>
-                            <TableCell align="right">Quantidade</TableCell>
-                            <TableCell align="right">Preço Unit.</TableCell>
-                            <TableCell align="right">Subtotal</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {selectedOS.pecas.map((p) => (
-                            <TableRow key={p.id}>
-                              <TableCell>{p.peca?.nome}</TableCell>
-                              <TableCell align="right">{p.quantidade}</TableCell>
-                              <TableCell align="right">{formatCurrency(p.preco_unitario)}</TableCell>
-                              <TableCell align="right">
-                                {formatCurrency(p.preco_unitario * p.quantidade)}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Grid>
-                )}
-                <Grid component="div" xs={12}>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-                    <Typography variant="h6">
-                      Desconto: {formatCurrency(selectedOS.desconto)}
-                    </Typography>
-                    <Typography variant="h6">
-                      Total: {formatCurrency(selectedOS.valor_total)}
-                    </Typography>
                   </Box>
-                </Grid>
-              </Grid>
+                )}
+              </Box>
+              {selectedOS.descricao_problema && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Descrição do Problema
+                  </Typography>
+                  <Typography variant="body1">{selectedOS.descricao_problema}</Typography>
+                </Box>
+              )}
+              {selectedOS.servicos && selectedOS.servicos.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Serviços
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Serviço</TableCell>
+                          <TableCell align="right">Quantidade</TableCell>
+                          <TableCell align="right">Preço Unit.</TableCell>
+                          <TableCell align="right">Subtotal</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedOS.servicos.map((s) => (
+                          <TableRow key={s.id}>
+                            <TableCell>{s.servico?.nome}</TableCell>
+                            <TableCell align="right">{s.quantidade}</TableCell>
+                            <TableCell align="right">{formatCurrency(s.preco_servico)}</TableCell>
+                            <TableCell align="right">
+                              {formatCurrency(s.preco_servico * s.quantidade)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              )}
+              {selectedOS.pecas && selectedOS.pecas.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Peças
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Peça</TableCell>
+                          <TableCell align="right">Quantidade</TableCell>
+                          <TableCell align="right">Preço Unit.</TableCell>
+                          <TableCell align="right">Subtotal</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedOS.pecas.map((p) => (
+                          <TableRow key={p.id}>
+                            <TableCell>{p.peca?.nome}</TableCell>
+                            <TableCell align="right">{p.quantidade}</TableCell>
+                            <TableCell align="right">{formatCurrency(p.preco_unitario)}</TableCell>
+                            <TableCell align="right">
+                              {formatCurrency(p.preco_unitario * p.quantidade)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              )}
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+                <Typography variant="h6">
+                  Desconto: {formatCurrency(selectedOS.desconto)}
+                </Typography>
+                <Typography variant="h6">
+                  Total: {formatCurrency(selectedOS.valor_total)}
+                </Typography>
+              </Box>
             </Box>
           )}
         </DialogContent>
@@ -509,236 +508,231 @@ export default function OrdemServico() {
         <DialogTitle>Nova Ordem de Serviço</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid xs={12} sm={6} component="div">
-                <Autocomplete
-                  options={clientes}
-                  getOptionLabel={(option) => `${option.nome} - ${option.cpf_cnpj}`}
-                  value={clientes.find((c) => c.id === formData.cliente_id) || null}
-                  onChange={(_, newValue) => {
-                    setFormData({ ...formData, cliente_id: newValue?.id });
-                  }}
-                  renderInput={(params) => <TextField {...params} label="Cliente *" />}
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <Autocomplete
-                  options={veiculos}
-                  getOptionLabel={(option) => `${option.placa} - ${option.marca} ${option.modelo}`}
-                  value={veiculos.find((v) => v.id === formData.veiculo_id) || null}
-                  onChange={(_, newValue) => {
-                    setFormData({ ...formData, veiculo_id: newValue?.id });
-                  }}
-                  renderInput={(params) => <TextField {...params} label="Veículo *" />}
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <Autocomplete
-                  options={mecanicos}
-                  getOptionLabel={(option) => option.nome}
-                  value={mecanicos.find((m) => m.id === formData.mecanico_id) || null}
-                  onChange={(_, newValue) => {
-                    setFormData({ ...formData, mecanico_id: newValue?.id });
-                  }}
-                  renderInput={(params) => <TextField {...params} label="Mecânico *" />}
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  select
-                  label="Status"
-                  value={formData.status || 'Aguardando'}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  fullWidth
-                >
-                  <MenuItem value="Aguardando">Aguardando</MenuItem>
-                  <MenuItem value="Em Andamento">Em Andamento</MenuItem>
-                  <MenuItem value="Concluído">Concluído</MenuItem>
-                  <MenuItem value="Pago">Pago</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  type="date"
-                  label="Data de Abertura"
-                  value={formData.data_abertura || ''}
-                  onChange={(e) => setFormData({ ...formData, data_abertura: e.target.value })}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid component="div" xs={12}>
-                <TextField
-                  label="Descrição do Problema"
-                  value={formData.descricao_problema || ''}
-                  onChange={(e) => setFormData({ ...formData, descricao_problema: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={3}
-                />
-              </Grid>
-              <Grid component="div" xs={12}>
-                <TextField
-                  label="Observações"
-                  value={formData.observacoes || ''}
-                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                />
-              </Grid>
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+              gap: 2,
+              mb: 2
+            }}>
+              <Autocomplete
+                options={clientes}
+                getOptionLabel={(option) => `${option.nome} - ${option.cpf_cnpj}`}
+                value={clientes.find((c) => c.id === formData.cliente_id) || null}
+                onChange={(_, newValue) => {
+                  setFormData({ ...formData, cliente_id: newValue?.id });
+                }}
+                renderInput={(params) => <TextField {...params} label="Cliente *" />}
+              />
+              <Autocomplete
+                options={veiculos}
+                getOptionLabel={(option) => `${option.placa} - ${option.marca} ${option.modelo}`}
+                value={veiculos.find((v) => v.id === formData.veiculo_id) || null}
+                onChange={(_, newValue) => {
+                  setFormData({ ...formData, veiculo_id: newValue?.id });
+                }}
+                renderInput={(params) => <TextField {...params} label="Veículo *" />}
+              />
+              <Autocomplete
+                options={mecanicos}
+                getOptionLabel={(option) => option.nome}
+                value={mecanicos.find((m) => m.id === formData.mecanico_id) || null}
+                onChange={(_, newValue) => {
+                  setFormData({ ...formData, mecanico_id: newValue?.id });
+                }}
+                renderInput={(params) => <TextField {...params} label="Mecânico *" />}
+              />
+              <TextField
+                select
+                label="Status"
+                value={formData.status || 'Aguardando'}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                fullWidth
+              >
+                <MenuItem value="Aguardando">Aguardando</MenuItem>
+                <MenuItem value="Em Andamento">Em Andamento</MenuItem>
+                <MenuItem value="Concluído">Concluído</MenuItem>
+                <MenuItem value="Pago">Pago</MenuItem>
+              </TextField>
+              <TextField
+                type="date"
+                label="Data de Abertura"
+                value={formData.data_abertura || ''}
+                onChange={(e) => setFormData({ ...formData, data_abertura: e.target.value })}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+              <TextField
+                label="Descrição do Problema"
+                value={formData.descricao_problema || ''}
+                onChange={(e) => setFormData({ ...formData, descricao_problema: e.target.value })}
+                fullWidth
+                multiline
+                rows={3}
+              />
+              <TextField
+                label="Observações"
+                value={formData.observacoes || ''}
+                onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                fullWidth
+                multiline
+                rows={2}
+              />
+            </Box>
 
-              {/* Seção de Serviços */}
-              <Grid component="div" xs={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="h6">Serviços</Typography>
-                  <Button startIcon={<AddIcon />} onClick={handleAddServico} size="small">
-                    Adicionar Serviço
-                  </Button>
+            {/* Seção de Serviços */}
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="h6">Serviços</Typography>
+                <Button startIcon={<AddIcon />} onClick={handleAddServico} size="small">
+                  Adicionar Serviço
+                </Button>
+              </Box>
+              {formData.servicos && formData.servicos.length > 0 && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {formData.servicos.map((servico, index) => (
+                    <Box key={index} sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+                      <Box sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr' },
+                        gap: 2,
+                        alignItems: 'center'
+                      }}>
+                        <Autocomplete
+                          options={servicos}
+                          getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
+                          value={servicos.find((s) => s.id === servico.servico_id) || null}
+                          onChange={(_, newValue) => {
+                            const newServicos = [...(formData.servicos || [])];
+                            newServicos[index] = {
+                              ...newServicos[index],
+                              servico_id: newValue?.id || 0,
+                              preco_unitario: newValue?.preco_padrao || 0,
+                            };
+                            setFormData({ ...formData, servicos: newServicos });
+                          }}
+                          renderInput={(params) => <TextField {...params} label="Serviço" size="small" />}
+                        />
+                        <TextField
+                          type="number"
+                          label="Quantidade"
+                          value={servico.quantidade}
+                          onChange={(e) => handleUpdateServico(index, 'quantidade', Number(e.target.value))}
+                          size="small"
+                          fullWidth
+                        />
+                        <TextField
+                          type="number"
+                          label="Preço Unit."
+                          value={servico.preco_unitario}
+                          onChange={(e) => handleUpdateServico(index, 'preco_unitario', Number(e.target.value))}
+                          size="small"
+                          fullWidth
+                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2">
+                            {formatCurrency(servico.quantidade * servico.preco_unitario)}
+                          </Typography>
+                          <IconButton size="small" color="error" onClick={() => handleRemoveServico(index)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
                 </Box>
-                {formData.servicos && formData.servicos.length > 0 && (
-                  <Box>
-                    {formData.servicos.map((servico, index) => (
-                      <Grid container spacing={2} key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                        <Grid component="div" xs={12} sm={5}>
-                          <Autocomplete
-                            options={servicos}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
-                            value={servicos.find((s) => s.id === servico.servico_id) || null}
-                            onChange={(_, newValue) => {
-                              const newServicos = [...(formData.servicos || [])];
-                              newServicos[index] = {
-                                ...newServicos[index],
-                                servico_id: newValue?.id || 0,
-                                preco_unitario: newValue?.preco ? parseFloat(newValue.preco_padrao) : 0,
-                              };
-                              setFormData({ ...formData, servicos: newServicos });
-                            }}                            renderInput={(params) => <TextField {...params} label="Serviço" size="small" />}
-                          />
-                        </Grid>
-                        <Grid component="div" xs={6} sm={2}>
-                          <TextField
-                            type="number"
-                            label="Quantidade"
-                            value={servico.quantidade}
-                            onChange={(e) => handleUpdateServico(index, 'quantidade', Number(e.target.value))}
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid component="div" xs={6} sm={3}>
-                          <TextField
-                            type="number"
-                            label="Preço Unit."
-                            value={servico.preco_unitario}
-                            onChange={(e) => handleUpdateServico(index, 'preco_unitario', Number(e.target.value))}
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid component="div" xs={12} sm={2}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>
-                              {formatCurrency(servico.quantidade * servico.preco_unitario)}
-                            </Typography>
-                            <IconButton size="small" color="error" onClick={() => handleRemoveServico(index)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Box>
-                        </Grid>
-                      </Grid>
-                    ))}
-                  </Box>
-                )}
-              </Grid>
+              )}
+            </Box>
 
-              {/* Seção de Peças */}
-              <Grid component="div" xs={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="h6">Peças</Typography>
-                  <Button startIcon={<AddIcon />} onClick={handleAddPeca} size="small">
-                    Adicionar Peça
-                  </Button>
+            {/* Seção de Peças */}
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="h6">Peças</Typography>
+                <Button startIcon={<AddIcon />} onClick={handleAddPeca} size="small">
+                  Adicionar Peça
+                </Button>
+              </Box>
+              {formData.pecas && formData.pecas.length > 0 && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {formData.pecas.map((peca, index) => (
+                    <Box key={index} sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+                      <Box sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr' },
+                        gap: 2,
+                        alignItems: 'center'
+                      }}>
+                        <Autocomplete
+                          options={pecas}
+                          getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_venda)}`}
+                          value={pecas.find((p) => p.id === peca.peca_id) || null}
+                          onChange={(_, newValue) => {
+                            const newPecas = [...(formData.pecas || [])];
+                            newPecas[index] = {
+                              ...newPecas[index],
+                              peca_id: newValue?.id || 0,
+                              preco_unitario: newValue?.preco_venda || 0,
+                            };
+                            setFormData({ ...formData, pecas: newPecas });
+                          }}
+                          renderInput={(params) => <TextField {...params} label="Peça" size="small" />}
+                        />
+                        <TextField
+                          type="number"
+                          label="Quantidade"
+                          value={peca.quantidade}
+                          onChange={(e) => handleUpdatePeca(index, 'quantidade', Number(e.target.value))}
+                          size="small"
+                          fullWidth
+                        />
+                        <TextField
+                          type="number"
+                          label="Preço Unit."
+                          value={peca.preco_unitario}
+                          onChange={(e) => handleUpdatePeca(index, 'preco_unitario', Number(e.target.value))}
+                          size="small"
+                          fullWidth
+                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2">
+                            {formatCurrency(peca.quantidade * peca.preco_unitario)}
+                          </Typography>
+                          <IconButton size="small" color="error" onClick={() => handleRemovePeca(index)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
                 </Box>
-                {formData.pecas && formData.pecas.length > 0 && (
-                  <Box>
-                    {formData.pecas.map((peca, index) => (
-                      <Grid container spacing={2} key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                        <Grid component="div" xs={12} sm={5}>
-                          <Autocomplete
-                            options={pecas}
-                            getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao_venda)}`}
-                            value={pecas.find((p) => p.id === peca.peca_id) || null}
-                            onChange={(_, newValue) => {
-                              const newPecas = [...(formData.pecas || [])];
-                              newPecas[index] = {
-                                ...newPecas[index],
-                                peca_id: newValue?.id || 0,
-                                preco_unitario: newValue?.preco_venda ? parseFloat(newValue.preco_venda) : 0,
-                              };
-                              setFormData({ ...formData, pecas: newPecas });
-                            }}
-                            renderInput={(params) => <TextField {...params} label="Peça" size="small" />}
-                          />
-                        </Grid>
-                        <Grid component="div" xs={6} sm={2}>
-                          <TextField
-                            type="number"
-                            label="Quantidade"
-                            value={peca.quantidade}
-                            onChange={(e) => handleUpdatePeca(index, 'quantidade', Number(e.target.value))}
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid component="div" xs={6} sm={3}>
-                          <TextField
-                            type="number"
-                            label="Preço Unit."
-                            value={peca.preco_unitario}
-                            onChange={(e) => handleUpdatePeca(index, 'preco_unitario', Number(e.target.value))}
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid component="div" xs={12} sm={2}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>
-                              {formatCurrency(peca.quantidade * peca.preco_unitario)}
-                            </Typography>
-                            <IconButton size="small" color="error" onClick={() => handleRemovePeca(index)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Box>
-                        </Grid>
-                      </Grid>
-                    ))}
-                  </Box>
-                )}
-              </Grid>
+              )}
+            </Box>
 
-              {/* Desconto e Total */}
-              <Grid xs={12} sm={6} component="div">
-                <TextField
-                  type="number"
-                  label="Desconto (R$)"
-                  value={formData.desconto || 0}
-                  onChange={(e) => setFormData({ ...formData, desconto: Number(e.target.value) })}
-                  fullWidth
-                />
-              </Grid>
-              <Grid xs={12} sm={6} component="div">
-                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                  <Typography variant="h6">
-                    Total: {formatCurrency(
-                      (formData.servicos?.reduce((sum, s) => sum + (s.quantidade * s.preco_unitario), 0) || 0) +
-                      (formData.pecas?.reduce((sum, p) => sum + (p.quantidade * p.preco_unitario), 0) || 0) -
-                      (formData.desconto || 0)
-                    )}
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
+            {/* Desconto e Total */}
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+              gap: 2,
+              alignItems: 'center'
+            }}>
+              <TextField
+                type="number"
+                label="Desconto (R$)"
+                value={formData.desconto || 0}
+                onChange={(e) => setFormData({ ...formData, desconto: Number(e.target.value) })}
+                fullWidth
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                <Typography variant="h6">
+                  Total: {formatCurrency(
+                    (formData.servicos?.reduce((sum, s) => sum + (s.quantidade * s.preco_unitario), 0) || 0) +
+                    (formData.pecas?.reduce((sum, p) => sum + (p.quantidade * p.preco_unitario), 0) || 0) -
+                    (formData.desconto || 0)
+                  )}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -752,4 +746,3 @@ export default function OrdemServico() {
   );
 }
 
-"// Corre��o de compila��o TypeScript - Sintaxe Grid atualizada"  
