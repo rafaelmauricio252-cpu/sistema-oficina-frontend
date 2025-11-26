@@ -31,6 +31,11 @@ export const clienteService = {
     const response = await api.get<{ clientes: Cliente[] }>(`/clientes/buscar?q=${encodeURIComponent(query)}`);
     return response.data.clientes;
   },
+
+  async verificarTemOS(id: number): Promise<boolean> {
+    const response = await api.get(`/clientes/${id}/tem-os`);
+    return response.data.tem_os;
+  },
 };
 
 export default clienteService;

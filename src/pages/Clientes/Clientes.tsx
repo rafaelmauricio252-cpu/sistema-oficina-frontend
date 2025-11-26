@@ -37,6 +37,7 @@ export default function Clientes() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [clienteTemOS, setClienteTemOS] = useState(false);
   const [formData, setFormData] = useState<ClienteFormData>({
     nome: '',
     cpf_cnpj: '',
@@ -62,7 +63,7 @@ export default function Clientes() {
     }
   };
 
-  const handleOpenDialog = (cliente?: Cliente) => {
+  const handleOpenDialog = async (cliente?: Cliente) => {
     if (cliente) {
       setEditingCliente(cliente);
       setFormData({
@@ -72,8 +73,18 @@ export default function Clientes() {
         email: cliente.email || '',
         endereco: cliente.endereco || '',
       });
+
+      // Verificar se cliente tem OS
+      try {
+        const temOS = await clienteService.verificarTemOS(cliente.id);
+        setClienteTemOS(temOS);
+      } catch (err) {
+        console.error('Erro ao verificar OS:', err);
+        setClienteTemOS(false);
+      }
     } else {
       setEditingCliente(null);
+      setClienteTemOS(false);
       setFormData({
         nome: '',
         cpf_cnpj: '',
@@ -270,12 +281,18 @@ export default function Clientes() {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {clienteTemOS && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Este cliente possui ordens de serviço. Nome e CPF/CNPJ não podem ser alterados.
+              </Alert>
+            )}
             <TextField
               label="Nome"
               value={formData.nome}
               onChange={(e) => handleChange('nome', e.target.value)}
               required
               fullWidth
+              disabled={clienteTemOS}
             />
             <TextField
               label="CPF/CNPJ"
@@ -283,6 +300,7 @@ export default function Clientes() {
               onChange={(e) => handleChange('cpf_cnpj', e.target.value)}
               required
               fullWidth
+              disabled={clienteTemOS}
             />
             <TextField
               label="Telefone"
