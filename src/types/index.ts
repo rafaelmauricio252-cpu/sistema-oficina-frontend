@@ -31,6 +31,7 @@ export interface Veiculo {
 export interface Mecanico {
   id: number;
   nome: string;
+  cpf: string;
   especialidade: string;
   telefone: string;
   email?: string;
@@ -184,6 +185,7 @@ export interface VeiculoFormData {
 
 export interface MecanicoFormData {
   nome: string;
+  cpf: string;
   especialidade: string;
   telefone: string;
   email?: string;

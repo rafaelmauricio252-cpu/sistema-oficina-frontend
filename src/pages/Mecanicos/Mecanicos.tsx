@@ -32,6 +32,7 @@ export default function Mecanicos() {
   const [editingMecanico, setEditingMecanico] = useState<Mecanico | null>(null);
   const [formData, setFormData] = useState<MecanicoFormData>({
     nome: '',
+    cpf: '',
     especialidade: '',
     telefone: '',
     email: '',
@@ -58,13 +59,14 @@ export default function Mecanicos() {
       setEditingMecanico(mecanico);
       setFormData({
         nome: mecanico.nome,
+        cpf: mecanico.cpf || '',
         especialidade: mecanico.especialidade,
         telefone: mecanico.telefone,
         email: mecanico.email || '',
       });
     } else {
       setEditingMecanico(null);
-      setFormData({ nome: '', especialidade: '', telefone: '', email: '' });
+      setFormData({ nome: '', cpf: '', especialidade: '', telefone: '', email: '' });
     }
     setDialogOpen(true);
   };
@@ -124,6 +126,7 @@ export default function Mecanicos() {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Nome</TableCell>
+              <TableCell>CPF</TableCell>
               <TableCell>Especialidade</TableCell>
               <TableCell>Telefone</TableCell>
               <TableCell>Email</TableCell>
@@ -133,13 +136,14 @@ export default function Mecanicos() {
           <TableBody>
             {mecanicos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">Nenhum mecânico cadastrado</TableCell>
+                <TableCell colSpan={7} align="center">Nenhum mecânico cadastrado</TableCell>
               </TableRow>
             ) : (
               mecanicos.map((mecanico) => (
                 <TableRow key={mecanico.id}>
                   <TableCell>{mecanico.id}</TableCell>
                   <TableCell>{mecanico.nome}</TableCell>
+                  <TableCell>{mecanico.cpf || '-'}</TableCell>
                   <TableCell>{mecanico.especialidade}</TableCell>
                   <TableCell>{mecanico.telefone}</TableCell>
                   <TableCell>{mecanico.email || '-'}</TableCell>
@@ -168,6 +172,14 @@ export default function Mecanicos() {
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
               required
               fullWidth
+            />
+            <TextField
+              label="CPF"
+              value={formData.cpf}
+              onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+              required
+              fullWidth
+              helperText="Apenas números"
             />
             <TextField
               label="Especialidade"

@@ -31,6 +31,11 @@ export const veiculoService = {
     const response = await api.delete(`/veiculos/${id}`);
     return response.data;
   },
+
+  async verificarTemOS(id: number): Promise<{ tem_os: boolean; campos_protegidos: string[] }> {
+    const response = await api.get<{ tem_os: boolean; campos_protegidos: string[] }>(`/veiculos/${id}/tem-os`);
+    return response.data;
+  },
 };
 
 export default veiculoService;

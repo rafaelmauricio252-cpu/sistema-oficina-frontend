@@ -37,6 +37,11 @@ export default function Veiculos() {
   const [success, setSuccess] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingVeiculo, setEditingVeiculo] = useState<Veiculo | null>(null);
+
+  // Estado para proteção de campos
+  const [veiculoTemOS, setVeiculoTemOS] = useState(false);
+  const [camposProtegidos, setCamposProtegidos] = useState<string[]>([]);
+
   const [formData, setFormData] = useState<VeiculoFormData>({
     cliente_id: 0,
     placa: '',
@@ -69,9 +74,25 @@ export default function Veiculos() {
     }
   };
 
-  const handleOpenDialog = (veiculo?: Veiculo) => {
+  const verificarProtecao = async (id: number) => {
+    try {
+      const { tem_os, campos_protegidos } = await veiculoService.verificarTemOS(id);
+      setVeiculoTemOS(tem_os);
+      setCamposProtegidos(campos_protegidos || []);
+    } catch (err) {
+      console.error('Erro ao verificar proteção do veículo:', err);
+      // Em caso de erro, assume sem proteção para não bloquear indevidamente
+      setVeiculoTemOS(false);
+      setCamposProtegidos([]);
+    }
+  };
+
+  const handleOpenDialog = async (veiculo?: Veiculo) => {
     if (veiculo) {
       setEditingVeiculo(veiculo);
+      // Verificar se tem OS para bloquear campos
+      await verificarProtecao(veiculo.id);
+
       setFormData({
         cliente_id: veiculo.cliente_id,
         placa: veiculo.placa,
@@ -84,6 +105,9 @@ export default function Veiculos() {
       });
     } else {
       setEditingVeiculo(null);
+      setVeiculoTemOS(false);
+      setCamposProtegidos([]);
+
       setFormData({
         cliente_id: 0,
         placa: '',
@@ -101,6 +125,8 @@ export default function Veiculos() {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setEditingVeiculo(null);
+    setVeiculoTemOS(false);
+    setCamposProtegidos([]);
   };
 
   const handleSubmit = async () => {
@@ -146,6 +172,10 @@ export default function Veiculos() {
   const getClienteNome = (clienteId: number) => {
     const cliente = clientes.find((c) => c.id === clienteId);
     return cliente?.nome || 'N/A';
+  };
+
+  const isFieldProtected = (field: string) => {
+    return veiculoTemOS && camposProtegidos.includes(field);
   };
 
   if (loading) {
@@ -242,6 +272,14 @@ export default function Veiculos() {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+            {veiculoTemOS && (
+              <Alert severity="info" sx={{ mb: 1 }}>
+                Este veículo possui ordens de serviço vinculadas.
+                Placa, Marca, Modelo e Ano não podem ser alterados para manter a integridade fiscal.
+              </Alert>
+            )}
+
             <TextField
               select
               label="Cliente"
@@ -249,6 +287,8 @@ export default function Veiculos() {
               onChange={(e) => handleChange('cliente_id', Number(e.target.value))}
               required
               fullWidth
+              disabled={veiculoTemOS}
+              helperText={veiculoTemOS ? "Não é possível alterar cliente de veículo com histórico de OS" : ""}
             >
               <MenuItem value="">Selecione um cliente</MenuItem>
               {clientes.map((cliente) => (
@@ -263,6 +303,8 @@ export default function Veiculos() {
               onChange={(e) => handleChange('placa', e.target.value)}
               required
               fullWidth
+              disabled={isFieldProtected('placa')}
+              helperText={isFieldProtected('placa') ? "Campo protegido (possui OS)" : ""}
             />
             <TextField
               label="Marca"
@@ -270,6 +312,8 @@ export default function Veiculos() {
               onChange={(e) => handleChange('marca', e.target.value)}
               required
               fullWidth
+              disabled={isFieldProtected('marca')}
+              helperText={isFieldProtected('marca') ? "Campo protegido (possui OS)" : ""}
             />
             <TextField
               label="Modelo"
@@ -277,6 +321,8 @@ export default function Veiculos() {
               onChange={(e) => handleChange('modelo', e.target.value)}
               required
               fullWidth
+              disabled={isFieldProtected('modelo')}
+              helperText={isFieldProtected('modelo') ? "Campo protegido (possui OS)" : ""}
             />
             <TextField
               label="Ano"
@@ -284,6 +330,8 @@ export default function Veiculos() {
               value={formData.ano || ''}
               onChange={(e) => handleChange('ano', e.target.value ? Number(e.target.value) : undefined)}
               fullWidth
+              disabled={isFieldProtected('ano')}
+              helperText={isFieldProtected('ano') ? "Campo protegido (possui OS)" : ""}
             />
             <TextField
               label="Cor"
