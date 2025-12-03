@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
+  Grid,
   Paper,
   Typography,
   TextField,
@@ -19,7 +20,6 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import type { ReceitasResponse } from '../../types';
 import financeiroService from '../../services/financeiroService';
 
@@ -83,7 +83,7 @@ export default function FinanceiroReceitas() {
           Filtros
         </Typography>
         <Grid container spacing={2}>
-          <Grid xs={12} sm={4}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth>
               <InputLabel>Período</InputLabel>
               <Select
@@ -101,7 +101,7 @@ export default function FinanceiroReceitas() {
             </FormControl>
           </Grid>
 
-          <Grid xs={12} sm={4}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth>
               <InputLabel>Forma de Pagamento</InputLabel>
               <Select
@@ -119,7 +119,7 @@ export default function FinanceiroReceitas() {
             </FormControl>
           </Grid>
 
-          <Grid xs={12} sm={4}>
+          <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Buscar Cliente/Placa/Mecânico"
@@ -149,7 +149,7 @@ export default function FinanceiroReceitas() {
       {dados && !loading && (
         <>
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card>
                 <CardContent>
                   <Typography variant="body2" color="textSecondary">
@@ -162,7 +162,7 @@ export default function FinanceiroReceitas() {
               </Card>
             </Grid>
 
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card>
                 <CardContent>
                   <Typography variant="body2" color="textSecondary">
@@ -175,7 +175,7 @@ export default function FinanceiroReceitas() {
               </Card>
             </Grid>
 
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card>
                 <CardContent>
                   <Typography variant="body2" color="textSecondary">
@@ -188,7 +188,7 @@ export default function FinanceiroReceitas() {
               </Card>
             </Grid>
 
-            <Grid xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card>
                 <CardContent>
                   <Typography variant="body2" color="textSecondary">
