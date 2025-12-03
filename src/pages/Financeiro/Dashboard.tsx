@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Grid,
   Paper,
   Typography,
   Card,
@@ -15,6 +14,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   TrendingUp as TrendingUpIcon,
   AttachMoney as AttachMoneyIcon,
@@ -166,7 +166,7 @@ export default function FinanceiroDashboard() {
 
       {/* Cards de Indicadores */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Receitas Mês Atual"
             value={formatarMoeda(dados.receitas_mes_atual)}
@@ -175,7 +175,7 @@ export default function FinanceiroDashboard() {
             subtitle={formatarPercentual(dados.variacao_percentual)}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Crescimento Mensal"
             value={formatarPercentual(dados.variacao_percentual)}
@@ -183,7 +183,7 @@ export default function FinanceiroDashboard() {
             color="#2e7d32"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Ticket Médio"
             value={formatarMoeda(dados.ticket_medio)}
@@ -191,7 +191,7 @@ export default function FinanceiroDashboard() {
             color="#ff9800"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <StatCard
             title="Total de Receitas"
             value={formatarMoeda(dados.total_receitas)}
@@ -204,7 +204,7 @@ export default function FinanceiroDashboard() {
       {/* Gráficos */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         {/* Evolução Mensal */}
-        <Grid item xs={12} md={12}>
+        <Grid xs={12} md={12}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Evolução Mensal de Receitas
@@ -229,7 +229,7 @@ export default function FinanceiroDashboard() {
         </Grid>
 
         {/* Formas de Pagamento */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Receitas por Forma de Pagamento
@@ -257,7 +257,7 @@ export default function FinanceiroDashboard() {
         </Grid>
 
         {/* Top 5 Serviços */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Top 5 Serviços Mais Lucrativos
