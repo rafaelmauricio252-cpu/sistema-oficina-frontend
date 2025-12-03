@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Grid,
   Paper,
   Typography,
   TextField,
@@ -82,53 +81,53 @@ export default function FinanceiroReceitas() {
         <Typography variant="h6" gutterBottom>
           Filtros
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Período</InputLabel>
-              <Select
-                value={periodo}
-                label="Período"
-                onChange={(e) => setPeriodo(e.target.value)}
-              >
-                <MenuItem value="mes_atual">Mês Atual</MenuItem>
-                <MenuItem value="mes_anterior">Mês Anterior</MenuItem>
-                <MenuItem value="ultimos_3_meses">Últimos 3 Meses</MenuItem>
-                <MenuItem value="ultimos_6_meses">Últimos 6 Meses</MenuItem>
-                <MenuItem value="ano_atual">Ano Atual</MenuItem>
-                <MenuItem value="todos">Todos os Períodos</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+            gap: 2,
+          }}
+        >
+          <FormControl fullWidth>
+            <InputLabel>Período</InputLabel>
+            <Select
+              value={periodo}
+              label="Período"
+              onChange={(e) => setPeriodo(e.target.value)}
+            >
+              <MenuItem value="mes_atual">Mês Atual</MenuItem>
+              <MenuItem value="mes_anterior">Mês Anterior</MenuItem>
+              <MenuItem value="ultimos_3_meses">Últimos 3 Meses</MenuItem>
+              <MenuItem value="ultimos_6_meses">Últimos 6 Meses</MenuItem>
+              <MenuItem value="ano_atual">Ano Atual</MenuItem>
+              <MenuItem value="todos">Todos os Períodos</MenuItem>
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Forma de Pagamento</InputLabel>
-              <Select
-                value={formaPagamento}
-                label="Forma de Pagamento"
-                onChange={(e) => setFormaPagamento(e.target.value)}
-              >
-                <MenuItem value="todas">Todas</MenuItem>
-                <MenuItem value="Dinheiro">Dinheiro</MenuItem>
-                <MenuItem value="Débito">Débito</MenuItem>
-                <MenuItem value="Crédito">Crédito</MenuItem>
-                <MenuItem value="PIX">PIX</MenuItem>
-                <MenuItem value="Transferência">Transferência</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+          <FormControl fullWidth>
+            <InputLabel>Forma de Pagamento</InputLabel>
+            <Select
+              value={formaPagamento}
+              label="Forma de Pagamento"
+              onChange={(e) => setFormaPagamento(e.target.value)}
+            >
+              <MenuItem value="todas">Todas</MenuItem>
+              <MenuItem value="Dinheiro">Dinheiro</MenuItem>
+              <MenuItem value="Débito">Débito</MenuItem>
+              <MenuItem value="Crédito">Crédito</MenuItem>
+              <MenuItem value="PIX">PIX</MenuItem>
+              <MenuItem value="Transferência">Transferência</MenuItem>
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Buscar Cliente/Placa/Mecânico"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Digite para buscar..."
-            />
-          </Grid>
-        </Grid>
+          <TextField
+            fullWidth
+            label="Buscar Cliente/Placa/Mecânico"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Digite para buscar..."
+          />
+        </Box>
       </Paper>
 
       {/* Loading */}
@@ -148,59 +147,58 @@ export default function FinanceiroReceitas() {
       {/* Totalizadores */}
       {dados && !loading && (
         <>
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="body2" color="textSecondary">
-                    Total de OS
-                  </Typography>
-                  <Typography variant="h5" fontWeight="bold">
-                    {dados.totalizadores.total_os}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            <Card>
+              <CardContent>
+                <Typography variant="body2" color="textSecondary">
+                  Total de OS
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {dados.totalizadores.total_os}
+                </Typography>
+              </CardContent>
+            </Card>
 
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="body2" color="textSecondary">
-                    Total de Receitas
-                  </Typography>
-                  <Typography variant="h5" fontWeight="bold" color="primary">
-                    {formatarMoeda(dados.totalizadores.total_receita)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+            <Card>
+              <CardContent>
+                <Typography variant="body2" color="textSecondary">
+                  Total de Receitas
+                </Typography>
+                <Typography variant="h5" fontWeight="bold" color="primary">
+                  {formatarMoeda(dados.totalizadores.total_receita)}
+                </Typography>
+              </CardContent>
+            </Card>
 
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="body2" color="textSecondary">
-                    Total de Descontos
-                  </Typography>
-                  <Typography variant="h5" fontWeight="bold" color="error">
-                    {formatarMoeda(dados.totalizadores.total_desconto)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+            <Card>
+              <CardContent>
+                <Typography variant="body2" color="textSecondary">
+                  Total de Descontos
+                </Typography>
+                <Typography variant="h5" fontWeight="bold" color="error">
+                  {formatarMoeda(dados.totalizadores.total_desconto)}
+                </Typography>
+              </CardContent>
+            </Card>
 
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="body2" color="textSecondary">
-                    Ticket Médio
-                  </Typography>
-                  <Typography variant="h5" fontWeight="bold" color="success.main">
-                    {formatarMoeda(dados.totalizadores.ticket_medio)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+            <Card>
+              <CardContent>
+                <Typography variant="body2" color="textSecondary">
+                  Ticket Médio
+                </Typography>
+                <Typography variant="h5" fontWeight="bold" color="success.main">
+                  {formatarMoeda(dados.totalizadores.ticket_medio)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
 
           {/* Tabela de Receitas */}
           <Paper>

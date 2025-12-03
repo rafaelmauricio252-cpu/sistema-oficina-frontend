@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Grid,
   Paper,
   Typography,
   Card,
@@ -165,71 +164,74 @@ export default function FinanceiroDashboard() {
       </Typography>
 
       {/* Cards de Indicadores */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Receitas Mês Atual"
-            value={formatarMoeda(dados.receitas_mes_atual)}
-            icon={<AttachMoneyIcon />}
-            color="#1976d2"
-            subtitle={formatarPercentual(dados.variacao_percentual)}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Crescimento Mensal"
-            value={formatarPercentual(dados.variacao_percentual)}
-            icon={<TrendingUpIcon />}
-            color="#2e7d32"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Ticket Médio"
-            value={formatarMoeda(dados.ticket_medio)}
-            icon={<AssessmentIcon />}
-            color="#ff9800"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total de Receitas"
-            value={formatarMoeda(dados.total_receitas)}
-            icon={<AccountBalanceIcon />}
-            color="#9c27b0"
-          />
-        </Grid>
-      </Grid>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gap: 3,
+          mb: 3,
+        }}
+      >
+        <StatCard
+          title="Receitas Mês Atual"
+          value={formatarMoeda(dados.receitas_mes_atual)}
+          icon={<AttachMoneyIcon />}
+          color="#1976d2"
+          subtitle={formatarPercentual(dados.variacao_percentual)}
+        />
+        <StatCard
+          title="Crescimento Mensal"
+          value={formatarPercentual(dados.variacao_percentual)}
+          icon={<TrendingUpIcon />}
+          color="#2e7d32"
+        />
+        <StatCard
+          title="Ticket Médio"
+          value={formatarMoeda(dados.ticket_medio)}
+          icon={<AssessmentIcon />}
+          color="#ff9800"
+        />
+        <StatCard
+          title="Total de Receitas"
+          value={formatarMoeda(dados.total_receitas)}
+          icon={<AccountBalanceIcon />}
+          color="#9c27b0"
+        />
+      </Box>
 
       {/* Gráficos */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3 }}>
         {/* Evolução Mensal */}
-        <Grid item xs={12} md={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Evolução Mensal de Receitas
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={dados.evolucao_mensal}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <Tooltip formatter={(value) => formatarMoeda(Number(value))} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="valor"
-                  stroke="#1976d2"
-                  strokeWidth={2}
-                  name="Receita"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Evolução Mensal de Receitas
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={dados.evolucao_mensal}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="mes" />
+              <YAxis />
+              <Tooltip formatter={(value) => formatarMoeda(Number(value))} />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="valor"
+                stroke="#1976d2"
+                strokeWidth={2}
+                name="Receita"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </Paper>
 
-        {/* Formas de Pagamento */}
-        <Grid item xs={12} md={6}>
+        {/* Formas de Pagamento e Top Serviços */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+            gap: 3,
+          }}
+        >
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Receitas por Forma de Pagamento
@@ -254,10 +256,7 @@ export default function FinanceiroDashboard() {
               </PieChart>
             </ResponsiveContainer>
           </Paper>
-        </Grid>
 
-        {/* Top 5 Serviços */}
-        <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Top 5 Serviços Mais Lucrativos
@@ -273,8 +272,8 @@ export default function FinanceiroDashboard() {
               </BarChart>
             </ResponsiveContainer>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Tabela de Últimas Receitas */}
       <Paper sx={{ p: 3 }}>
