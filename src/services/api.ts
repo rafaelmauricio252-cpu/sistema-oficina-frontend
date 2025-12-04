@@ -12,14 +12,18 @@ export const api = axios.create({
   },
 });
 
-// Interceptor para requisições
+// Função auxiliar para obter token (evita importação circular)
+const obterToken = (): string | null => {
+  return localStorage.getItem('token');
+};
+
+// Interceptor para requisições (adicionar token)
 api.interceptors.request.use(
   (config) => {
-    // Aqui pode adicionar token de autenticação se necessário
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = obterToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -27,29 +31,24 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para respostas
+// Interceptor para respostas (tratar erros de autenticação)
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Tratamento de erros globais
-    if (error.response) {
-      // O servidor respondeu com um status de erro
-      console.error('Erro na resposta:', error.response.data);
-
-      if (error.response.status === 401) {
-        // Não autorizado - redirecionar para login se necessário
-        // window.location.href = '/login';
-      }
-    } else if (error.request) {
-      // A requisição foi feita mas não houve resposta
-      console.error('Erro na requisição:', error.request);
-    } else {
-      // Algo aconteceu ao configurar a requisição
-      console.error('Erro:', error.message);
+    // Se erro 401, redirecionar para login
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
 
+    // Tratamento global de erros
+    if (error.response) {
+      console.error('Erro na resposta:', error.response.data);
+    } else if (error.request) {
+      console.error('Erro na requisição:', error.request);
+    } else {
+      console.error('Erro:', error.message);
+    }
     return Promise.reject(error);
   }
 );

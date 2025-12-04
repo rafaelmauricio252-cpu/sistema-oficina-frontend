@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -16,6 +16,7 @@ import {
   useTheme,
   useMediaQuery,
   Collapse,
+  Button,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -31,7 +32,10 @@ import {
   ExpandMore,
   TrendingUp as TrendingUpIcon,
   Receipt as ReceiptIcon,
+  ManageAccounts as ManageAccountsIcon,
 } from '@mui/icons-material';
+import { useAuth } from '../../contexts/AuthContext';
+import TrocarSenhaDialog from '../TrocarSenhaDialog/TrocarSenhaDialog';
 
 const drawerWidth = 260;
 
@@ -39,34 +43,53 @@ interface MenuItem {
   text: string;
   icon: React.JSX.Element;
   path?: string;
+  modulo?: string | null;
   subItems?: { text: string; icon: React.JSX.Element; path: string }[];
 }
 
-const menuItems: MenuItem[] = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { text: 'Clientes', icon: <PeopleIcon />, path: '/clientes' },
-  { text: 'Veículos', icon: <DirectionsCarIcon />, path: '/veiculos' },
-  { text: 'Mecânicos', icon: <BuildIcon />, path: '/mecanicos' },
-  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: '/servicos' },
-  { text: 'Peças', icon: <InventoryIcon />, path: '/pecas' },
-  { text: 'Ordem de Serviço', icon: <AssignmentIcon />, path: '/ordem-servico' },
+const todosMenuItems: MenuItem[] = [
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', modulo: null },
+  { text: 'Clientes', icon: <PeopleIcon />, path: '/clientes', modulo: 'clientes' },
+  { text: 'Veículos', icon: <DirectionsCarIcon />, path: '/veiculos', modulo: 'veiculos' },
+  { text: 'Mecânicos', icon: <BuildIcon />, path: '/mecanicos', modulo: 'mecanicos' },
+  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: '/servicos', modulo: 'servicos' },
+  { text: 'Peças', icon: <InventoryIcon />, path: '/pecas', modulo: 'pecas' },
+  { text: 'Ordem de Serviço', icon: <AssignmentIcon />, path: '/ordem-servico', modulo: 'ordem_servico' },
   {
     text: 'Financeiro',
     icon: <AttachMoneyIcon />,
+    modulo: 'financeiro',
     subItems: [
       { text: 'Dashboard', icon: <TrendingUpIcon />, path: '/financeiro/dashboard' },
       { text: 'Receitas', icon: <ReceiptIcon />, path: '/financeiro/receitas' },
     ]
   },
+  { text: 'Usuários', icon: <ManageAccountsIcon />, path: '/usuarios', modulo: 'admin' },
 ];
 
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [financeiroOpen, setFinanceiroOpen] = useState(true);
+  const [dialogSenhaOpen, setDialogSenhaOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { usuario, logout, temPermissao, eAdmin } = useAuth();
+
+  // Verificar se deve trocar senha
+  useEffect(() => {
+    if (usuario?.deve_trocar_senha) {
+      setDialogSenhaOpen(true);
+    }
+  }, [usuario]);
+
+  // Filtrar menu baseado em permissões
+  const menuItems = todosMenuItems.filter(item => {
+    if (!item.modulo) return true; // Dashboard sempre visível
+    if (item.modulo === 'admin') return eAdmin; // Usuários apenas para admin
+    return temPermissao(item.modulo);
+  });
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -216,17 +239,14 @@ export default function Layout() {
             Sistema de Gestão
           </Typography>
 
-          {/* User Profile Placeholder */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
-              <Typography variant="subtitle2" sx={{ lineHeight: 1.2 }}>Admin User</Typography>
-              <Typography variant="caption" color="text.secondary">Administrador</Typography>
-            </Box>
-            <IconButton size="large" edge="end" color="inherit">
-              <Box sx={{ width: 32, height: 32, bgcolor: 'primary.main', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.875rem', fontWeight: 'bold' }}>
-                A
-              </Box>
-            </IconButton>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Typography variant="body2">
+              {usuario?.nome}
+            </Typography>
+            <Button color="inherit" onClick={logout}>
+              Sair
+            </Button>
           </Box>
         </Toolbar>
       </AppBar>
@@ -283,6 +303,12 @@ export default function Layout() {
         <Toolbar />
         <Outlet />
       </Box>
+
+      <TrocarSenhaDialog
+        open={dialogSenhaOpen}
+        obrigatorio={usuario?.deve_trocar_senha}
+        onClose={() => setDialogSenhaOpen(false)}
+      />
     </Box>
   );
 }

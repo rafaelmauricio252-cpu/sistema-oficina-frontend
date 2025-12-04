@@ -298,3 +298,58 @@ export interface ReceitasResponse {
   receitas: Receita[];
   totalizadores: TotalizadoresReceita;
 }
+
+// ============= AUTENTICAÇÃO =============
+export interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  tipo: 'admin' | 'comum';
+  ativo: boolean;
+  deve_trocar_senha: boolean;
+  permissoes: string[];
+  criado_em?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  senha: string;
+}
+
+export interface LoginResponse {
+  sucesso: boolean;
+  token: string;
+  usuario: Usuario;
+}
+
+export interface TrocarSenhaRequest {
+  senha_atual?: string;
+  senha_nova: string;
+}
+
+// ============= USUÁRIOS (CRUD Admin) =============
+export interface CriarUsuarioRequest {
+  nome: string;
+  email: string;
+  senha: string;
+  tipo: 'admin' | 'comum';
+  permissoes?: string[];
+}
+
+export interface AtualizarUsuarioRequest {
+  nome?: string;
+  email?: string;
+  tipo?: 'admin' | 'comum';
+  ativo?: boolean;
+}
+
+export interface ResetarSenhaResponse {
+  sucesso: boolean;
+  mensagem: string;
+  senha_temporaria: string;
+  usuario: {
+    id: number;
+    nome: string;
+    email: string;
+  };
+}
