@@ -148,18 +148,17 @@ export default function OrdemServico() {
 
   const handleShareWhatsApp = async (osPartial: OrdemServicoType) => {
     try {
-      if (!osPartial.cliente?.telefone) {
-        setError('Cliente não possui telefone cadastrado.');
-        return;
-      }
-
       setLoading(true);
       const os = await ordemServicoService.getById(osPartial.id);
       setLoading(false);
 
       if (!os.cliente) {
         setError('Dados do cliente não encontrados na OS.');
-        setLoading(false);
+        return;
+      }
+
+      if (!os.cliente.telefone) {
+        setError('Cliente não possui telefone cadastrado.');
         return;
       }
 
