@@ -157,6 +157,12 @@ export default function OrdemServico() {
       const os = await ordemServicoService.getById(osPartial.id);
       setLoading(false);
 
+      if (!os.cliente) {
+        setError('Dados do cliente não encontrados na OS.');
+        setLoading(false);
+        return;
+      }
+
       const telefone = os.cliente.telefone.replace(/\D/g, '');
       const nomeCliente = os.cliente.nome;
       const modeloVeiculo = os.veiculo ? `${os.veiculo.modelo} - ${os.veiculo.placa}` : 'N/A';
