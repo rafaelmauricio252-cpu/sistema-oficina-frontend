@@ -46,11 +46,26 @@ export default function Clientes() {
     telefone: '',
     email: '',
     endereco: '',
+    veiculo: {
+      placa: '',
+      marca: '',
+      modelo: '',
+      ano: undefined,
+      cor: '',
+    },
   });
 
   useEffect(() => {
     loadClientes();
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const loadClientes = async () => {
     try {
@@ -93,6 +108,13 @@ export default function Clientes() {
         telefone: '',
         email: '',
         endereco: '',
+        veiculo: {
+          placa: '',
+          marca: '',
+          modelo: '',
+          ano: undefined,
+          cor: '',
+        },
       });
     }
     setDialogOpen(true);
@@ -177,13 +199,7 @@ export default function Clientes() {
     loadClientes();
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   return (
     <Box>
@@ -192,22 +208,14 @@ export default function Clientes() {
         <Box display="flex" gap={2} alignItems="center">
           <TextField
             size="small"
-            placeholder="Buscar por nome..."
+            placeholder="Buscar por nome, CPF ou Placa..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             InputProps={{
               startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
             }}
             sx={{ width: '300px' }}
           />
-          <Button
-            variant="outlined"
-            startIcon={<SearchIcon />}
-            onClick={handleSearch}
-          >
-            Buscar
-          </Button>
           {searchQuery && (
             <Button
               variant="outlined"
@@ -229,60 +237,66 @@ export default function Clientes() {
 
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Nome</TableCell>
-              <TableCell>CPF/CNPJ</TableCell>
-              <TableCell>Telefone</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {clientes.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  Nenhum cliente cadastrado
-                </TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Nome</TableCell>
+                <TableCell>CPF/CNPJ</TableCell>
+                <TableCell>Telefone</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Ações</TableCell>
               </TableRow>
-            ) : (
-              clientes.map((cliente) => (
-                <TableRow
-                  key={cliente.id}
-                  sx={{
-                    backgroundColor: highlightedId === cliente.id ? '#ffebee' : 'inherit',
-                    border: highlightedId === cliente.id ? '2px solid #f44336' : 'none',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
-                  <TableCell>{cliente.id}</TableCell>
-                  <TableCell>{cliente.nome}</TableCell>
-                  <TableCell>{cliente.cpf_cnpj}</TableCell>
-                  <TableCell>{cliente.telefone}</TableCell>
-                  <TableCell>{cliente.email || '-'}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleOpenDialog(cliente)}
-                      color="primary"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDelete(cliente.id)}
-                      color="error"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+            </TableHead>
+            <TableBody>
+              {clientes.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    Nenhum cliente cadastrado
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                clientes.map((cliente) => (
+                  <TableRow
+                    key={cliente.id}
+                    sx={{
+                      backgroundColor: highlightedId === cliente.id ? '#ffebee' : 'inherit',
+                      border: highlightedId === cliente.id ? '2px solid #f44336' : 'none',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
+                    <TableCell>{cliente.id}</TableCell>
+                    <TableCell>{cliente.nome}</TableCell>
+                    <TableCell>{cliente.cpf_cnpj}</TableCell>
+                    <TableCell>{cliente.telefone}</TableCell>
+                    <TableCell>{cliente.email || '-'}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenDialog(cliente)}
+                        color="primary"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(cliente.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
 
       {/* Dialog de Criar/Editar */}
@@ -335,6 +349,62 @@ export default function Clientes() {
               rows={3}
               fullWidth
             />
+
+            {!editingCliente && (
+              <Box sx={{ mt: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+                  Dados do Veículo (Opcional)
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <TextField
+                    label="Placa"
+                    value={formData.veiculo?.placa || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      veiculo: { ...formData.veiculo!, placa: e.target.value.toUpperCase() }
+                    })}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Marca"
+                    value={formData.veiculo?.marca || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      veiculo: { ...formData.veiculo!, marca: e.target.value }
+                    })}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Modelo"
+                    value={formData.veiculo?.modelo || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      veiculo: { ...formData.veiculo!, modelo: e.target.value }
+                    })}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Cor"
+                    value={formData.veiculo?.cor || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      veiculo: { ...formData.veiculo!, cor: e.target.value }
+                    })}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Ano"
+                    type="number"
+                    value={formData.veiculo?.ano || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      veiculo: { ...formData.veiculo!, ano: parseInt(e.target.value) || undefined }
+                    })}
+                    fullWidth
+                  />
+                </Box>
+              </Box>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -346,7 +416,7 @@ export default function Clientes() {
       </Dialog>
 
       {/* Snackbars para mensagens de erro e sucesso */}
-      <Snackbar
+      < Snackbar
         open={!!error}
         autoHideDuration={6000}
         onClose={() => setError('')}

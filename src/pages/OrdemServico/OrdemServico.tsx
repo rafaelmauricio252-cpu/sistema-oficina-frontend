@@ -29,6 +29,8 @@ import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import type { OrdemServico as OrdemServicoType, OSFormData, Cliente, Veiculo, Mecanico, Servico, Peca } from '../../types';
 import ordemServicoService from '../../services/ordemServicoService';
@@ -37,6 +39,7 @@ import veiculoService from '../../services/veiculoService';
 import mecanicoService from '../../services/mecanicoService';
 import servicoService from '../../services/servicoService';
 import pecaService from '../../services/pecaService';
+import CurrencyInput from '../../components/CurrencyInput';
 
 export default function OrdemServico() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,6 +53,7 @@ export default function OrdemServico() {
   const [selectedOS, setSelectedOS] = useState<OrdemServicoType | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [highlightedOSId, setHighlightedOSId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // States para criação/edição de OS
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -74,13 +78,21 @@ export default function OrdemServico() {
   const [newVeiculoData, setNewVeiculoData] = useState({ placa: '', marca: '', modelo: '', ano: '', cor: '' });
 
   useEffect(() => {
-    loadOrdens();
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  useEffect(() => {
     loadFormData();
   }, []);
 
   const loadOrdens = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await ordemServicoService.getAll();
       setOrdens(data);
     } catch (err: any) {
@@ -88,6 +100,30 @@ export default function OrdemServico() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      if (!loading && ordens.length === 0) loadOrdens(); // Only reload if empty and not loading (initial state)
+      else if (searchQuery === '') loadOrdens(); // Reload if cleared
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await ordemServicoService.search(searchQuery);
+      setOrdens(data);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar ordens de serviço');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    loadOrdens();
   };
 
   const loadFormData = async () => {
@@ -323,7 +359,7 @@ export default function OrdemServico() {
     const hoje = new Date();
 
     return dataOS.getMonth() === hoje.getMonth() &&
-           dataOS.getFullYear() === hoje.getFullYear();
+      dataOS.getFullYear() === hoje.getFullYear();
   };
 
   const formatCurrency = (value: number) =>
@@ -360,13 +396,7 @@ export default function OrdemServico() {
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   // Filtrar ordens de acordo com status e mês
   const ordensFiltradas = ordens
@@ -379,14 +409,35 @@ export default function OrdemServico() {
         <Typography variant="h4" component="h1">
           Ordens de Serviço
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenCreateDialog}
-        >
-          Nova OS
-        </Button>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar Cliente, Placa ou ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            sx={{ width: '300px' }}
+          />
+          {searchQuery && (
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearSearch}
+            >
+              Limpar
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenCreateDialog}
+          >
+            Nova OS
+          </Button>
+        </Box>
       </Box>
 
       {(statusFiltro || mesFiltro) && (
@@ -411,84 +462,91 @@ export default function OrdemServico() {
       )}
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nº</TableCell>
-              <TableCell>Data Abertura</TableCell>
-              <TableCell>Agendamento</TableCell>
-              <TableCell>Cliente</TableCell>
-              <TableCell>Veículo</TableCell>
-              <TableCell>Mecânico</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {ordensFiltradas.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={9} align="center">
-                  {statusFiltro ? `Nenhuma ordem de serviço com status "${statusFiltro}"` : 'Nenhuma ordem de serviço encontrada'}
-                </TableCell>
+                <TableCell>Nº</TableCell>
+                <TableCell>Data Abertura</TableCell>
+                <TableCell>Agendamento</TableCell>
+                <TableCell>Cliente</TableCell>
+                <TableCell>Veículo</TableCell>
+                <TableCell>Mecânico</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Total</TableCell>
+                <TableCell>Ações</TableCell>
               </TableRow>
-            ) : (
-              ordensFiltradas.map((os) => (
-                <TableRow
-                  key={os.id}
-                  sx={{
-                    backgroundColor: highlightedOSId === os.id ? '#ffebee' : 'inherit',
-                    border: highlightedOSId === os.id ? '2px solid #f44336' : 'none',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
-                  <TableCell>{os.id}</TableCell>
-                  <TableCell>{formatDate(os.data_abertura)}</TableCell>
-                  <TableCell>
-                    {os.data_agendamento ? (
-                      <Typography variant="body2" color="warning.main" fontWeight="bold">
-                        {formatDate(os.data_agendamento)}
-                      </Typography>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell>{os.cliente?.nome}</TableCell>
-                  <TableCell>
-                    {os.veiculo ? `${os.veiculo.modelo} - ${os.veiculo.placa}` : 'N/A'}
-                  </TableCell>
-                  <TableCell>{os.mecanico?.nome}</TableCell>
-                  <TableCell>
-                    <Chip label={os.status} color={getStatusColor(os.status)} size="small" />
-                  </TableCell>
-                  <TableCell>{formatCurrency(os.valor_total)}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" color="primary" onClick={() => handleViewDetails(os)} title="Visualizar">
-                      <VisibilityIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={() => handleOpenEditDialog(os)}
-                      disabled={os.status === 'Pago'}
-                      title="Editar"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeleteOS(os)}
-                      disabled={os.status === 'Pago'}
-                      title="Excluir"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+            </TableHead>
+            <TableBody>
+              {ordensFiltradas.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} align="center">
+                    {statusFiltro ? `Nenhuma ordem de serviço com status "${statusFiltro}"` : 'Nenhuma ordem de serviço encontrada'}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                ordensFiltradas.map((os) => (
+                  <TableRow
+                    key={os.id}
+                    sx={{
+                      backgroundColor: highlightedOSId === os.id ? '#ffebee' : 'inherit',
+                      border: highlightedOSId === os.id ? '2px solid #f44336' : 'none',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
+                    <TableCell>{os.id}</TableCell>
+                    <TableCell>{formatDate(os.data_abertura)}</TableCell>
+                    <TableCell>
+                      {os.data_agendamento ? (
+                        <Typography variant="body2" color="warning.main" fontWeight="bold">
+                          {formatDate(os.data_agendamento)}
+                        </Typography>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell>{os.cliente?.nome}</TableCell>
+                    <TableCell>
+                      {os.veiculo ? `${os.veiculo.modelo} - ${os.veiculo.placa}` : 'N/A'}
+                    </TableCell>
+                    <TableCell>{os.mecanico?.nome}</TableCell>
+                    <TableCell>
+                      <Chip label={os.status} color={getStatusColor(os.status)} size="small" />
+                    </TableCell>
+                    <TableCell>{formatCurrency(os.valor_total)}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" color="primary" onClick={() => handleViewDetails(os)} title="Visualizar">
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => handleOpenEditDialog(os)}
+                        disabled={os.status === 'Pago'}
+                        title="Editar"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteOS(os)}
+                        disabled={os.status === 'Pago'}
+                        title="Excluir"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
+
       {/* Dialog de Detalhes da OS */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>Detalhes da Ordem de Serviço #{selectedOS?.id}</DialogTitle>
@@ -631,8 +689,6 @@ export default function OrdemServico() {
           <Button onClick={() => setDialogOpen(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
-
-      {/* Dialog de Criação/Edição de OS */}
       <Dialog open={createDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
         <DialogTitle>{editingOS ? `Editar Ordem de Serviço #${editingOS.id}` : 'Nova Ordem de Serviço'}</DialogTitle>
         <DialogContent>
@@ -749,58 +805,68 @@ export default function OrdemServico() {
                 </Button>
               </Box>
               {formData.servicos && formData.servicos.length > 0 && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {formData.servicos.map((servico, index) => (
-                    <Box key={index} sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                      <Box sx={{
-                        display: 'grid',
-                        gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr' },
-                        gap: 2,
-                        alignItems: 'center'
-                      }}>
-                        <Autocomplete
-                          options={servicos}
-                          getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
-                          value={servicos.find((s) => s.id === servico.servico_id) || null}
-                          onChange={(_, newValue) => {
-                            const newServicos = [...(formData.servicos || [])];
-                            newServicos[index] = {
-                              ...newServicos[index],
-                              servico_id: newValue?.id || 0,
-                              preco_unitario: newValue?.preco_padrao || 0,
-                            };
-                            setFormData({ ...formData, servicos: newServicos });
-                          }}
-                          renderInput={(params) => <TextField {...params} label="Serviço" size="small" />}
-                        />
-                        <TextField
-                          type="number"
-                          label="Quantidade"
-                          value={servico.quantidade}
-                          onChange={(e) => handleUpdateServico(index, 'quantidade', Number(e.target.value))}
-                          size="small"
-                          fullWidth
-                        />
-                        <TextField
-                          type="number"
-                          label="Preço Unit."
-                          value={servico.preco_unitario}
-                          onChange={(e) => handleUpdateServico(index, 'preco_unitario', Number(e.target.value))}
-                          size="small"
-                          fullWidth
-                        />
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body2">
+                <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Serviço</TableCell>
+                        <TableCell width="100">Qtd</TableCell>
+                        <TableCell width="120">Preço Unit.</TableCell>
+                        <TableCell width="120">Subtotal</TableCell>
+                        <TableCell width="50"></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData.servicos.map((servico, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <Autocomplete
+                              options={servicos}
+                              getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_padrao)}`}
+                              value={servicos.find((s) => s.id === servico.servico_id) || null}
+                              onChange={(_, newValue) => {
+                                const newServicos = [...(formData.servicos || [])];
+                                newServicos[index] = {
+                                  ...newServicos[index],
+                                  servico_id: newValue?.id || 0,
+                                  preco_unitario: newValue?.preco_padrao || 0,
+                                };
+                                setFormData({ ...formData, servicos: newServicos });
+                              }}
+                              renderInput={(params) => <TextField {...params} variant="standard" placeholder="Selecione..." />}
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              type="number"
+                              value={servico.quantidade}
+                              onChange={(e) => handleUpdateServico(index, 'quantidade', Number(e.target.value))}
+                              variant="standard"
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <CurrencyInput
+                              value={servico.preco_unitario}
+                              onChange={(val) => handleUpdateServico(index, 'preco_unitario', val)}
+                              variant="standard"
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell>
                             {formatCurrency(servico.quantidade * servico.preco_unitario)}
-                          </Typography>
-                          <IconButton size="small" color="error" onClick={() => handleRemoveServico(index)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
+                          </TableCell>
+                          <TableCell>
+                            <IconButton size="small" color="error" onClick={() => handleRemoveServico(index)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </Box>
 
@@ -813,58 +879,68 @@ export default function OrdemServico() {
                 </Button>
               </Box>
               {formData.pecas && formData.pecas.length > 0 && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {formData.pecas.map((peca, index) => (
-                    <Box key={index} sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                      <Box sx={{
-                        display: 'grid',
-                        gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr' },
-                        gap: 2,
-                        alignItems: 'center'
-                      }}>
-                        <Autocomplete
-                          options={pecas}
-                          getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_venda)}`}
-                          value={pecas.find((p) => p.id === peca.peca_id) || null}
-                          onChange={(_, newValue) => {
-                            const newPecas = [...(formData.pecas || [])];
-                            newPecas[index] = {
-                              ...newPecas[index],
-                              peca_id: newValue?.id || 0,
-                              preco_unitario: newValue?.preco_venda || 0,
-                            };
-                            setFormData({ ...formData, pecas: newPecas });
-                          }}
-                          renderInput={(params) => <TextField {...params} label="Peça" size="small" />}
-                        />
-                        <TextField
-                          type="number"
-                          label="Quantidade"
-                          value={peca.quantidade}
-                          onChange={(e) => handleUpdatePeca(index, 'quantidade', Number(e.target.value))}
-                          size="small"
-                          fullWidth
-                        />
-                        <TextField
-                          type="number"
-                          label="Preço Unit."
-                          value={peca.preco_unitario}
-                          onChange={(e) => handleUpdatePeca(index, 'preco_unitario', Number(e.target.value))}
-                          size="small"
-                          fullWidth
-                        />
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body2">
+                <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Peça</TableCell>
+                        <TableCell width="100">Qtd</TableCell>
+                        <TableCell width="120">Preço Unit.</TableCell>
+                        <TableCell width="120">Subtotal</TableCell>
+                        <TableCell width="50"></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData.pecas.map((peca, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <Autocomplete
+                              options={pecas}
+                              getOptionLabel={(option) => `${option.nome} - ${formatCurrency(option.preco_venda)}`}
+                              value={pecas.find((p) => p.id === peca.peca_id) || null}
+                              onChange={(_, newValue) => {
+                                const newPecas = [...(formData.pecas || [])];
+                                newPecas[index] = {
+                                  ...newPecas[index],
+                                  peca_id: newValue?.id || 0,
+                                  preco_unitario: newValue?.preco_venda || 0,
+                                };
+                                setFormData({ ...formData, pecas: newPecas });
+                              }}
+                              renderInput={(params) => <TextField {...params} variant="standard" placeholder="Selecione..." />}
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              type="number"
+                              value={peca.quantidade}
+                              onChange={(e) => handleUpdatePeca(index, 'quantidade', Number(e.target.value))}
+                              variant="standard"
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <CurrencyInput
+                              value={peca.preco_unitario}
+                              onChange={(val) => handleUpdatePeca(index, 'preco_unitario', val)}
+                              variant="standard"
+                              fullWidth
+                            />
+                          </TableCell>
+                          <TableCell>
                             {formatCurrency(peca.quantidade * peca.preco_unitario)}
-                          </Typography>
-                          <IconButton size="small" color="error" onClick={() => handleRemovePeca(index)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
+                          </TableCell>
+                          <TableCell>
+                            <IconButton size="small" color="error" onClick={() => handleRemovePeca(index)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </Box>
 
@@ -875,11 +951,10 @@ export default function OrdemServico() {
               gap: 2,
               alignItems: 'center'
             }}>
-              <TextField
-                type="number"
+              <CurrencyInput
                 label="Desconto (R$)"
                 value={formData.desconto || 0}
-                onChange={(e) => setFormData({ ...formData, desconto: Number(e.target.value) })}
+                onChange={(val) => setFormData({ ...formData, desconto: val })}
                 fullWidth
               />
               <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
@@ -893,17 +968,18 @@ export default function OrdemServico() {
               </Box>
             </Box>
           </Box>
-        </DialogContent>
+        </DialogContent >
         <DialogActions>
           <Button onClick={handleCloseCreateDialog}>Cancelar</Button>
           <Button onClick={handleSubmitCreate} variant="contained">
             {editingOS ? 'Salvar Alterações' : 'Criar OS'}
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog >
 
       {/* Dialog de Cadastro Rápido de Cliente */}
-      <Dialog open={clienteDialogOpen} onClose={() => setClienteDialogOpen(false)} maxWidth="sm" fullWidth>
+      < Dialog open={clienteDialogOpen} onClose={() => setClienteDialogOpen(false)
+      } maxWidth="sm" fullWidth >
         <DialogTitle>Cadastro Rápido de Cliente</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -940,10 +1016,10 @@ export default function OrdemServico() {
             Criar Cliente
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog >
 
       {/* Dialog de Cadastro Rápido de Veículo */}
-      <Dialog open={veiculoDialogOpen} onClose={() => setVeiculoDialogOpen(false)} maxWidth="sm" fullWidth>
+      < Dialog open={veiculoDialogOpen} onClose={() => setVeiculoDialogOpen(false)} maxWidth="sm" fullWidth >
         <DialogTitle>Cadastro Rápido de Veículo</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -986,10 +1062,10 @@ export default function OrdemServico() {
             Criar Veículo
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog >
 
       {/* Snackbars para mensagens de erro e sucesso */}
-      <Snackbar
+      < Snackbar
         open={!!error}
         autoHideDuration={6000}
         onClose={() => setError('')}
@@ -998,7 +1074,7 @@ export default function OrdemServico() {
         <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
           {error}
         </Alert>
-      </Snackbar>
+      </Snackbar >
 
       <Snackbar
         open={!!success}
@@ -1010,7 +1086,7 @@ export default function OrdemServico() {
           {success}
         </Alert>
       </Snackbar>
-    </Box>
+    </Box >
   );
 }
 

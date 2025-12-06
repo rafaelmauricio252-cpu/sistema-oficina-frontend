@@ -26,6 +26,13 @@ export const servicoService = {
     const response = await api.delete(`/servicos/${id}`);
     return response.data;
   },
+
+  async search(query: string): Promise<Servico[]> {
+    const response = await api.get<{ servicos: Servico[] }>('/servicos/buscar', {
+      params: { q: query }
+    });
+    return response.data.servicos;
+  },
 };
 
 export default servicoService;

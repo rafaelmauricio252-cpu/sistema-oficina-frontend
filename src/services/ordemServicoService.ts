@@ -77,6 +77,36 @@ export const ordemServicoService = {
     });
     return response.data;
   },
+
+  async search(query: string): Promise<OrdemServico[]> {
+    const response = await api.get<{ ordem_servicos: any[] }>('/os', {
+      params: { q: query }
+    });
+
+    // Check if response.data.ordem_servicos is defined
+    if (!response.data.ordem_servicos) {
+      return [];
+    }
+
+    // Same mapping as getAll
+    return response.data.ordem_servicos.map(os => ({
+      ...os,
+      cliente: os.cliente_nome ? {
+        id: os.cliente_id,
+        nome: os.cliente_nome
+      } : null,
+      veiculo: os.placa ? {
+        id: os.veiculo_id,
+        placa: os.placa,
+        marca: os.marca,
+        modelo: os.modelo
+      } : null,
+      mecanico: os.mecanico_nome ? {
+        id: os.mecanico_id,
+        nome: os.mecanico_nome
+      } : null
+    }));
+  },
 };
 
 export default ordemServicoService;

@@ -20,7 +20,13 @@ import {
   CircularProgress,
   Snackbar,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
+} from '@mui/icons-material';
 import type { Mecanico, MecanicoFormData } from '../../types';
 import mecanicoService from '../../services/mecanicoService';
 
@@ -32,6 +38,7 @@ export default function Mecanicos() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingMecanico, setEditingMecanico] = useState<Mecanico | null>(null);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState<MecanicoFormData>({
     nome: '',
     cpf: '',
@@ -41,12 +48,21 @@ export default function Mecanicos() {
   });
 
   useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  useEffect(() => {
     loadMecanicos();
   }, []);
 
   const loadMecanicos = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await mecanicoService.getAll();
       setMecanicos(data);
     } catch (err: any) {
@@ -54,6 +70,29 @@ export default function Mecanicos() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      loadMecanicos();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await mecanicoService.search(searchQuery);
+      setMecanicos(data);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar mecânicos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    loadMecanicos();
   };
 
   const handleOpenDialog = (mecanico?: Mecanico) => {
@@ -115,71 +154,92 @@ export default function Mecanicos() {
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">Mecânicos</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-          Novo Mecânico
-        </Button>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar por Nome, CPF ou Especialidade..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            sx={{ width: '350px' }}
+          />
+          {searchQuery && (
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearSearch}
+            >
+              Limpar
+            </Button>
+          )}
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+            Novo Mecânico
+          </Button>
+        </Box>
       </Box>
 
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Nome</TableCell>
-              <TableCell>CPF</TableCell>
-              <TableCell>Especialidade</TableCell>
-              <TableCell>Telefone</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {mecanicos.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={7} align="center">Nenhum mecânico cadastrado</TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Nome</TableCell>
+                <TableCell>CPF</TableCell>
+                <TableCell>Especialidade</TableCell>
+                <TableCell>Telefone</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Ações</TableCell>
               </TableRow>
-            ) : (
-              mecanicos.map((mecanico) => (
-                <TableRow
-                  key={mecanico.id}
-                  sx={{
-                    backgroundColor: highlightedId === mecanico.id ? '#ffebee' : 'inherit',
-                    border: highlightedId === mecanico.id ? '2px solid #f44336' : 'none',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
-                  <TableCell>{mecanico.id}</TableCell>
-                  <TableCell>{mecanico.nome}</TableCell>
-                  <TableCell>{mecanico.cpf || '-'}</TableCell>
-                  <TableCell>{mecanico.especialidade}</TableCell>
-                  <TableCell>{mecanico.telefone}</TableCell>
-                  <TableCell>{mecanico.email || '-'}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" onClick={() => handleOpenDialog(mecanico)} color="primary">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(mecanico.id)} color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+            </TableHead>
+            <TableBody>
+              {mecanicos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">Nenhum mecânico cadastrado</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                mecanicos.map((mecanico) => (
+                  <TableRow
+                    key={mecanico.id}
+                    sx={{
+                      backgroundColor: highlightedId === mecanico.id ? '#ffebee' : 'inherit',
+                      border: highlightedId === mecanico.id ? '2px solid #f44336' : 'none',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
+                    <TableCell>{mecanico.id}</TableCell>
+                    <TableCell>{mecanico.nome}</TableCell>
+                    <TableCell>{mecanico.cpf || '-'}</TableCell>
+                    <TableCell>{mecanico.especialidade}</TableCell>
+                    <TableCell>{mecanico.telefone}</TableCell>
+                    <TableCell>{mecanico.email || '-'}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleOpenDialog(mecanico)} color="primary">
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleDelete(mecanico.id)} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>

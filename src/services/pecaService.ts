@@ -26,6 +26,13 @@ export const pecaService = {
     const response = await api.delete(`/pecas/${id}`);
     return response.data;
   },
+
+  async search(query: string): Promise<Peca[]> {
+    const response = await api.get<{ pecas: Peca[] }>('/pecas/buscar', {
+      params: { q: query }
+    });
+    return response.data.pecas;
+  },
 };
 
 export default pecaService;

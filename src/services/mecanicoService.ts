@@ -26,6 +26,13 @@ export const mecanicoService = {
     const response = await api.delete(`/mecanicos/${id}`);
     return response.data;
   },
+
+  async search(query: string): Promise<Mecanico[]> {
+    const response = await api.get<{ mecanicos: Mecanico[] }>('/mecanicos/buscar', {
+      params: { q: query }
+    });
+    return response.data.mecanicos;
+  },
 };
 
 export default mecanicoService;

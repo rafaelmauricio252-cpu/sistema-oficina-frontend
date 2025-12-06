@@ -144,6 +144,14 @@ export interface DashboardStats {
   os_em_andamento: number;
   os_finalizadas: number;
   os_pagas: number;
+  top_servicos: Array<{
+    nome: string;
+    total: number;
+  }>;
+  top_pecas: Array<{
+    nome: string;
+    total: number;
+  }>;
 }
 
 // ============================================
@@ -175,6 +183,13 @@ export interface ClienteFormData {
   telefone: string;
   email?: string;
   endereco?: string;
+  veiculo?: {
+    placa: string;
+    marca: string;
+    modelo: string;
+    ano?: number;
+    cor?: string;
+  };
 }
 
 export interface VeiculoFormData {

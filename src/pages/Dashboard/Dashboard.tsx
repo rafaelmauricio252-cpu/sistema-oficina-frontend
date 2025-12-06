@@ -105,12 +105,7 @@ export default function Dashboard() {
     }
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
+
 
   if (loading) {
     return (
@@ -228,7 +223,7 @@ export default function Dashboard() {
         />
       </Box>
 
-      {/* Faturamento do mês */}
+      {/* Top 5 Serviços e Peças */}
       <Box
         sx={{
           display: 'grid',
@@ -239,33 +234,57 @@ export default function Dashboard() {
       >
         <Paper elevation={3} sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
-            Faturamento do Mês Atual
-          </Typography>
-          <Typography variant="h4" color="primary">
-            {formatCurrency(stats.os_mes_atual.faturamento)}
-          </Typography>
-        </Paper>
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Ordens de Serviço por Status
+            Top 5 Serviços Mais Pedidos
           </Typography>
           <TableContainer>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Status</TableCell>
-                  <TableCell align="right">Quantidade</TableCell>
-                  <TableCell align="right">Valor Total</TableCell>
+                  <TableCell>Serviço</TableCell>
+                  <TableCell align="right">Qtd. Pedidos</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {stats.os_por_status.map((item) => (
-                  <TableRow key={item.status}>
-                    <TableCell>{item.status}</TableCell>
+                {stats.top_servicos?.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.nome}</TableCell>
                     <TableCell align="right">{item.total}</TableCell>
-                    <TableCell align="right">{formatCurrency(item.valor_total)}</TableCell>
                   </TableRow>
                 ))}
+                {(!stats.top_servicos || stats.top_servicos.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={2} align="center">Nenhum dado disponível</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Top 5 Peças Mais Utilizadas
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Peça</TableCell>
+                  <TableCell align="right">Qtd. Utilizada</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {stats.top_pecas?.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.nome}</TableCell>
+                    <TableCell align="right">{item.total}</TableCell>
+                  </TableRow>
+                ))}
+                {(!stats.top_pecas || stats.top_pecas.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={2} align="center">Nenhum dado disponível</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -281,31 +300,7 @@ export default function Dashboard() {
           mb: 4,
         }}
       >
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Ranking de Mecânicos
-          </Typography>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Mecânico</TableCell>
-                  <TableCell align="right">Total OS</TableCell>
-                  <TableCell align="right">Valor Total</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {stats.mecanicos_ranking.map((mecanico) => (
-                  <TableRow key={mecanico.nome}>
-                    <TableCell>{mecanico.nome}</TableCell>
-                    <TableCell align="right">{mecanico.total_os}</TableCell>
-                    <TableCell align="right">{formatCurrency(mecanico.valor_total)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+
 
         {/* Peças com estoque baixo */}
         <Paper elevation={3} sx={{ p: 3 }}>

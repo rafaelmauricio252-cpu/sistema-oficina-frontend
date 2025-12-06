@@ -25,6 +25,8 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import type { Veiculo, VeiculoFormData, Cliente } from '../../types';
 import veiculoService from '../../services/veiculoService';
@@ -38,6 +40,7 @@ export default function Veiculos() {
   const [success, setSuccess] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingVeiculo, setEditingVeiculo] = useState<Veiculo | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Estado para proteção de campos
   const [veiculoTemOS, setVeiculoTemOS] = useState(false);
@@ -58,6 +61,14 @@ export default function Veiculos() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const loadData = async () => {
     try {
@@ -180,6 +191,29 @@ export default function Veiculos() {
     }
   };
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      loadData();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await veiculoService.search(searchQuery);
+      setVeiculos(data);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar veículos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    loadData();
+  };
+
   const handleChange = (field: keyof VeiculoFormData, value: any) => {
     setFormData({ ...formData, [field]: value });
   };
@@ -193,87 +227,108 @@ export default function Veiculos() {
     return veiculoTemOS && camposProtegidos.includes(field);
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">Veículos</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Novo Veículo
-        </Button>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar por Placa, Cliente ou Cor..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            sx={{ width: '300px' }}
+          />
+          {searchQuery && (
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearSearch}
+            >
+              Limpar
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+          >
+            Novo Veículo
+          </Button>
+        </Box>
       </Box>
 
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Placa</TableCell>
-              <TableCell>Marca/Modelo</TableCell>
-              <TableCell>Ano</TableCell>
-              <TableCell>KM</TableCell>
-              <TableCell>Cor</TableCell>
-              <TableCell>Cliente</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {veiculos.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={7} align="center">
-                  Nenhum veículo cadastrado
-                </TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Placa</TableCell>
+                <TableCell>Marca/Modelo</TableCell>
+                <TableCell>Ano</TableCell>
+                <TableCell>KM</TableCell>
+                <TableCell>Cor</TableCell>
+                <TableCell>Cliente</TableCell>
+                <TableCell>Ações</TableCell>
               </TableRow>
-            ) : (
-              veiculos.map((veiculo) => (
-                <TableRow
-                  key={veiculo.id}
-                  sx={{
-                    backgroundColor: highlightedId === veiculo.id ? '#ffebee' : 'inherit',
-                    border: highlightedId === veiculo.id ? '2px solid #f44336' : 'none',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
-                  <TableCell>{veiculo.id}</TableCell>
-                  <TableCell>{veiculo.placa}</TableCell>
-                  <TableCell>{`${veiculo.marca} ${veiculo.modelo}`}</TableCell>
-                  <TableCell>{veiculo.ano || '-'}</TableCell>
-                  <TableCell>{veiculo.km || '-'}</TableCell>
-                  <TableCell>{veiculo.cor || '-'}</TableCell>
-                  <TableCell>{getClienteNome(veiculo.cliente_id)}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleOpenDialog(veiculo)}
-                      color="primary"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDelete(veiculo.id)}
-                      color="error"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+            </TableHead>
+            <TableBody>
+              {veiculos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center">
+                    Nenhum veículo cadastrado
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                veiculos.map((veiculo) => (
+                  <TableRow
+                    key={veiculo.id}
+                    sx={{
+                      backgroundColor: highlightedId === veiculo.id ? '#ffebee' : 'inherit',
+                      border: highlightedId === veiculo.id ? '2px solid #f44336' : 'none',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
+                    <TableCell>{veiculo.id}</TableCell>
+                    <TableCell>{veiculo.placa}</TableCell>
+                    <TableCell>{`${veiculo.marca} ${veiculo.modelo}`}</TableCell>
+                    <TableCell>{veiculo.ano || '-'}</TableCell>
+                    <TableCell>{veiculo.km || '-'}</TableCell>
+                    <TableCell>{veiculo.cor || '-'}</TableCell>
+                    <TableCell>{getClienteNome(veiculo.cliente_id)}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenDialog(veiculo)}
+                        color="primary"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(veiculo.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
 
       {/* Dialog de Criar/Editar */}

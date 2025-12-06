@@ -20,8 +20,16 @@ import {
   CircularProgress,
   Chip,
   Snackbar,
+  InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Warning as WarningIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
+} from '@mui/icons-material';
 import type { Peca, PecaFormData } from '../../types';
 import pecaService from '../../services/pecaService';
 
@@ -33,6 +41,7 @@ export default function Pecas() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPeca, setEditingPeca] = useState<Peca | null>(null);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState<PecaFormData>({
     nome: '',
     numero_peca: '',
@@ -45,12 +54,21 @@ export default function Pecas() {
   });
 
   useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  useEffect(() => {
     loadPecas();
   }, []);
 
   const loadPecas = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await pecaService.getAll();
       setPecas(data);
     } catch (err: any) {
@@ -58,6 +76,29 @@ export default function Pecas() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      loadPecas();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await pecaService.search(searchQuery);
+      setPecas(data);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar peças');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    loadPecas();
   };
 
   const handleOpenDialog = (peca?: Peca) => {
@@ -136,82 +177,103 @@ export default function Pecas() {
 
   const isEstoqueBaixo = (peca: Peca) => peca.quantidade_estoque <= peca.estoque_minimo;
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">Peças e Estoque</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-          Nova Peça
-        </Button>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar por Nome ou Código..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            sx={{ width: '350px' }}
+          />
+          {searchQuery && (
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearSearch}
+            >
+              Limpar
+            </Button>
+          )}
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+            Nova Peça
+          </Button>
+        </Box>
       </Box>
 
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nº Peça</TableCell>
-              <TableCell>Nome</TableCell>
-              <TableCell>Preço Custo</TableCell>
-              <TableCell>Preço Venda</TableCell>
-              <TableCell>Estoque</TableCell>
-              <TableCell>Estoque Mín.</TableCell>
-              <TableCell>Localização</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pecas.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={8} align="center">Nenhuma peça cadastrada</TableCell>
+                <TableCell>Nº Peça</TableCell>
+                <TableCell>Nome</TableCell>
+                <TableCell>Preço Custo</TableCell>
+                <TableCell>Preço Venda</TableCell>
+                <TableCell>Estoque</TableCell>
+                <TableCell>Estoque Mín.</TableCell>
+                <TableCell>Localização</TableCell>
+                <TableCell>Ações</TableCell>
               </TableRow>
-            ) : (
-              pecas.map((peca) => (
-                <TableRow
-                  key={peca.id}
-                  sx={{
-                    backgroundColor: highlightedId === peca.id ? '#ffebee' : (isEstoqueBaixo(peca) ? '#fff3e0' : 'inherit'),
-                    border: highlightedId === peca.id ? '2px solid #f44336' : 'none',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
-                  <TableCell>{peca.numero_peca}</TableCell>
-                  <TableCell>
-                    {peca.nome}
-                    {isEstoqueBaixo(peca) && (
-                      <Chip icon={<WarningIcon />} label="Estoque Baixo" color="warning" size="small" sx={{ ml: 1 }} />
-                    )}
-                  </TableCell>
-                  <TableCell>{formatCurrency(peca.preco_custo)}</TableCell>
-                  <TableCell>{formatCurrency(peca.preco_venda)}</TableCell>
-                  <TableCell>
-                    <Typography color={isEstoqueBaixo(peca) ? 'error' : 'inherit'} fontWeight={isEstoqueBaixo(peca) ? 'bold' : 'normal'}>
-                      {peca.quantidade_estoque}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{peca.estoque_minimo}</TableCell>
-                  <TableCell>{peca.localizacao || '-'}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" onClick={() => handleOpenDialog(peca)} color="primary">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(peca.id)} color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+            </TableHead>
+            <TableBody>
+              {pecas.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center">Nenhuma peça cadastrada</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                pecas.map((peca) => (
+                  <TableRow
+                    key={peca.id}
+                    sx={{
+                      backgroundColor: highlightedId === peca.id ? '#ffebee' : (isEstoqueBaixo(peca) ? '#fff3e0' : 'inherit'),
+                      border: highlightedId === peca.id ? '2px solid #f44336' : 'none',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
+                    <TableCell>{peca.numero_peca}</TableCell>
+                    <TableCell>
+                      {peca.nome}
+                      {isEstoqueBaixo(peca) && (
+                        <Chip icon={<WarningIcon />} label="Estoque Baixo" color="warning" size="small" sx={{ ml: 1 }} />
+                      )}
+                    </TableCell>
+                    <TableCell>{formatCurrency(peca.preco_custo)}</TableCell>
+                    <TableCell>{formatCurrency(peca.preco_venda)}</TableCell>
+                    <TableCell>
+                      <Typography color={isEstoqueBaixo(peca) ? 'error' : 'inherit'} fontWeight={isEstoqueBaixo(peca) ? 'bold' : 'normal'}>
+                        {peca.quantidade_estoque}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{peca.estoque_minimo}</TableCell>
+                    <TableCell>{peca.localizacao || '-'}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleOpenDialog(peca)} color="primary">
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleDelete(peca.id)} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
@@ -249,6 +311,14 @@ export default function Pecas() {
               onChange={(e) => setFormData({ ...formData, preco_custo: Number(e.target.value) })}
               required
               fullWidth
+              InputProps={{
+                startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+              }}
+              sx={{
+                '& input[type=number]': { '-moz-appearance': 'textfield' },
+                '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
+                '& input[type=number]::-webkit-inner-spin-button': { '-webkit-appearance': 'none', margin: 0 }
+              }}
             />
             <TextField
               label="Preço de Venda"
@@ -257,6 +327,14 @@ export default function Pecas() {
               onChange={(e) => setFormData({ ...formData, preco_venda: Number(e.target.value) })}
               required
               fullWidth
+              InputProps={{
+                startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+              }}
+              sx={{
+                '& input[type=number]': { '-moz-appearance': 'textfield' },
+                '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
+                '& input[type=number]::-webkit-inner-spin-button': { '-webkit-appearance': 'none', margin: 0 }
+              }}
             />
             <Box sx={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
               <TextField
@@ -266,6 +344,11 @@ export default function Pecas() {
                 onChange={(e) => setFormData({ ...formData, quantidade_estoque: Number(e.target.value) })}
                 required
                 fullWidth
+                sx={{
+                  '& input[type=number]': { '-moz-appearance': 'textfield' },
+                  '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
+                  '& input[type=number]::-webkit-inner-spin-button': { '-webkit-appearance': 'none', margin: 0 }
+                }}
               />
               <TextField
                 label="Estoque Mínimo"
@@ -274,6 +357,11 @@ export default function Pecas() {
                 onChange={(e) => setFormData({ ...formData, estoque_minimo: Number(e.target.value) })}
                 required
                 fullWidth
+                sx={{
+                  '& input[type=number]': { '-moz-appearance': 'textfield' },
+                  '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
+                  '& input[type=number]::-webkit-inner-spin-button': { '-webkit-appearance': 'none', margin: 0 }
+                }}
               />
               <TextField
                 label="Localização"

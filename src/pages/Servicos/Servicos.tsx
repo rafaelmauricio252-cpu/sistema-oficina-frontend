@@ -22,8 +22,15 @@ import {
   Switch,
   FormControlLabel,
   Snackbar,
+  InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
+} from '@mui/icons-material';
 import type { Servico, ServicoFormData } from '../../types';
 import servicoService from '../../services/servicoService';
 
@@ -35,6 +42,7 @@ export default function Servicos() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingServico, setEditingServico] = useState<Servico | null>(null);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState<ServicoFormData>({
     nome: '',
     descricao: '',
@@ -44,12 +52,21 @@ export default function Servicos() {
   });
 
   useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  useEffect(() => {
     loadServicos();
   }, []);
 
   const loadServicos = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await servicoService.getAll();
       setServicos(data);
     } catch (err: any) {
@@ -57,6 +74,29 @@ export default function Servicos() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      loadServicos();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await servicoService.search(searchQuery);
+      setServicos(data);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar serviços');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    loadServicos();
   };
 
   const handleOpenDialog = (servico?: Servico) => {
@@ -121,71 +161,92 @@ export default function Servicos() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">Serviços</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-          Novo Serviço
-        </Button>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar por Nome ou Descrição..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            sx={{ width: '350px' }}
+          />
+          {searchQuery && (
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearSearch}
+            >
+              Limpar
+            </Button>
+          )}
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+            Novo Serviço
+          </Button>
+        </Box>
       </Box>
 
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Nome</TableCell>
-              <TableCell>Preço Padrão</TableCell>
-              <TableCell>Tempo Estimado (min)</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {servicos.length === 0 ? (
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={6} align="center">Nenhum serviço cadastrado</TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Nome</TableCell>
+                <TableCell>Preço Padrão</TableCell>
+                <TableCell>Tempo Estimado (min)</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Ações</TableCell>
               </TableRow>
-            ) : (
-              servicos.map((servico) => (
-                <TableRow
-                  key={servico.id}
-                  sx={{
-                    backgroundColor: highlightedId === servico.id ? '#ffebee' : 'inherit',
-                    border: highlightedId === servico.id ? '2px solid #f44336' : 'none',
-                    transition: 'all 0.3s ease-in-out',
-                  }}
-                >
-                  <TableCell>{servico.id}</TableCell>
-                  <TableCell>{servico.nome}</TableCell>
-                  <TableCell>{formatCurrency(servico.preco_padrao)}</TableCell>
-                  <TableCell>{servico.tempo_estimado || '-'}</TableCell>
-                  <TableCell>
-                    <Chip label={servico.ativo ? 'Ativo' : 'Inativo'} color={servico.ativo ? 'success' : 'default'} size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton size="small" onClick={() => handleOpenDialog(servico)} color="primary">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(servico.id)} color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+            </TableHead>
+            <TableBody>
+              {servicos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">Nenhum serviço cadastrado</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                servicos.map((servico) => (
+                  <TableRow
+                    key={servico.id}
+                    sx={{
+                      backgroundColor: highlightedId === servico.id ? '#ffebee' : 'inherit',
+                      border: highlightedId === servico.id ? '2px solid #f44336' : 'none',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                  >
+                    <TableCell>{servico.id}</TableCell>
+                    <TableCell>{servico.nome}</TableCell>
+                    <TableCell>{formatCurrency(servico.preco_padrao)}</TableCell>
+                    <TableCell>{servico.tempo_estimado || '-'}</TableCell>
+                    <TableCell>
+                      <Chip label={servico.ativo ? 'Ativo' : 'Inativo'} color={servico.ativo ? 'success' : 'default'} size="small" />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleOpenDialog(servico)} color="primary">
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleDelete(servico.id)} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
@@ -214,6 +275,22 @@ export default function Servicos() {
               onChange={(e) => setFormData({ ...formData, preco_padrao: parseFloat(e.target.value) || 0 })}
               required
               fullWidth
+              InputProps={{
+                startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+              }}
+              sx={{
+                '& input[type=number]': {
+                  '-moz-appearance': 'textfield'
+                },
+                '& input[type=number]::-webkit-outer-spin-button': {
+                  '-webkit-appearance': 'none',
+                  margin: 0
+                },
+                '& input[type=number]::-webkit-inner-spin-button': {
+                  '-webkit-appearance': 'none',
+                  margin: 0
+                }
+              }}
             />
             <TextField
               label="Tempo Estimado (minutos)"

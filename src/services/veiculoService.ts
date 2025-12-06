@@ -36,6 +36,13 @@ export const veiculoService = {
     const response = await api.get<{ tem_os: boolean; campos_protegidos: string[] }>(`/veiculos/${id}/tem-os`);
     return response.data;
   },
+
+  async search(query: string): Promise<Veiculo[]> {
+    const response = await api.get<{ veiculos: Veiculo[] }>(`/veiculos/buscar`, {
+      params: { q: query }
+    });
+    return response.data.veiculos;
+  },
 };
 
 export default veiculoService;
