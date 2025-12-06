@@ -31,6 +31,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
+  WhatsApp as WhatsAppIcon,
 } from '@mui/icons-material';
 import type { OrdemServico as OrdemServicoType, OSFormData, Cliente, Veiculo, Mecanico, Servico, Peca } from '../../types';
 import ordemServicoService from '../../services/ordemServicoService';
@@ -142,6 +143,72 @@ export default function OrdemServico() {
       setPecas(pecasData);
     } catch (err: any) {
       console.error('Erro ao carregar dados do formulário:', err);
+    }
+  };
+
+  const handleShareWhatsApp = async (osPartial: OrdemServicoType) => {
+    try {
+      if (!osPartial.cliente?.telefone) {
+        setError('Cliente não possui telefone cadastrado.');
+        return;
+      }
+
+      setLoading(true);
+      const os = await ordemServicoService.getById(osPartial.id);
+      setLoading(false);
+
+      const telefone = os.cliente.telefone.replace(/\D/g, '');
+      const nomeCliente = os.cliente.nome;
+      const modeloVeiculo = os.veiculo ? `${os.veiculo.modelo} - ${os.veiculo.placa}` : 'N/A';
+      const total = formatCurrency(os.valor_total);
+
+      let message = `🔧 *Oficina Mecânica*\n\n` +
+        `Olá *${nomeCliente}*, aqui está o resumo da sua OS *#${os.id}*\n\n` +
+        `🚗 *Veículo:* ${modeloVeiculo}\n` +
+        `📅 *Status:* ${os.status}\n`;
+
+      if (os.observacoes) {
+        message += `📝 *Observações:* ${os.observacoes}\n`;
+      }
+
+      if (os.status.toLowerCase() === 'agendamento' && os.data_agendamento) {
+        const dataAgendamento = new Date(os.data_agendamento).toLocaleDateString('pt-BR');
+        const horaAgendamento = new Date(os.data_agendamento).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        message += `🕒 *Agendado para:* ${dataAgendamento} às ${horaAgendamento}\n`;
+      }
+
+      if (os.servicos && os.servicos.length > 0) {
+        message += `\n🛠️ *Serviços:*\n`;
+        os.servicos.forEach(s => {
+          const nomeServico = (s as any).servico?.nome || (s as any).nome || 'Serviço';
+          message += `• ${nomeServico}\n`;
+        });
+      }
+
+      if (os.pecas && os.pecas.length > 0) {
+        message += `\n🔩 *Peças:*\n`;
+        os.pecas.forEach(p => {
+          const nomePeca = (p as any).peca?.nome || (p as any).nome || 'Peça';
+          message += `• ${nomePeca} (x${p.quantidade})\n`;
+        });
+      }
+
+      message += `\n💰 *Total:* ${total}\n`;
+
+      if (os.status === 'Pago' && os.forma_pagamento) {
+        message += `💳 *Pagamento:* ${os.forma_pagamento}\n`;
+      }
+
+      message += `\n_Qualquer dúvida, entre em contato!_`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const url = `https://wa.me/55${telefone}?text=${encodedMessage}`;
+
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Erro ao gerar mensagem WhatsApp:', error);
+      setError('Erro ao abrir WhatsApp. Verifique os dados da OS.');
+      setLoading(false);
     }
   };
 
@@ -519,6 +586,14 @@ export default function OrdemServico() {
                     <TableCell>
                       <IconButton size="small" color="primary" onClick={() => handleViewDetails(os)} title="Visualizar">
                         <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="success" // Green color for WhatsApp
+                        onClick={() => handleShareWhatsApp(os)}
+                        title="Enviar no WhatsApp"
+                      >
+                        <WhatsAppIcon />
                       </IconButton>
                       <IconButton
                         size="small"

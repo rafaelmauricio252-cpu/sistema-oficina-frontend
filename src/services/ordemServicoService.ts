@@ -9,7 +9,8 @@ export const ordemServicoService = {
       ...os,
       cliente: os.cliente_nome ? {
         id: os.cliente_id,
-        nome: os.cliente_nome
+        nome: os.cliente_nome,
+        telefone: os.cliente_telefone
       } : null,
       veiculo: os.placa ? {
         id: os.veiculo_id,
@@ -50,7 +51,21 @@ export const ordemServicoService = {
       mecanico: os.mecanico_nome ? {
         id: os.mecanico_id,
         nome: os.mecanico_nome
-      } : null
+      } : null,
+      servicos: os.servicos ? os.servicos.map((s: any) => ({
+        ...s,
+        servico: {
+          nome: s.servico_nome || 'Serviço',
+          descricao: s.servico_descricao
+        }
+      })) : [],
+      pecas: os.pecas ? os.pecas.map((p: any) => ({
+        ...p,
+        peca: {
+          nome: p.peca_nome || 'Peça',
+          numero_peca: p.peca_codigo
+        }
+      })) : []
     } as OrdemServico;
   },
 
@@ -93,7 +108,8 @@ export const ordemServicoService = {
       ...os,
       cliente: os.cliente_nome ? {
         id: os.cliente_id,
-        nome: os.cliente_nome
+        nome: os.cliente_nome,
+        telefone: os.cliente_telefone
       } : null,
       veiculo: os.placa ? {
         id: os.veiculo_id,
