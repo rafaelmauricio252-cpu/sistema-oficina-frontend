@@ -23,6 +23,8 @@ import {
   MenuItem,
   Autocomplete,
   Snackbar,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -41,6 +43,7 @@ import mecanicoService from '../../services/mecanicoService';
 import servicoService from '../../services/servicoService';
 import pecaService from '../../services/pecaService';
 import CurrencyInput from '../../components/CurrencyInput';
+import FotoGallery from '../../components/FotoGallery/FotoGallery';
 
 export default function OrdemServico() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,6 +56,7 @@ export default function OrdemServico() {
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedOS, setSelectedOS] = useState<OrdemServicoType | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [tabValue, setTabValue] = useState(0); // Estado para controlar a aba ativa
   const [highlightedOSId, setHighlightedOSId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -217,9 +221,18 @@ export default function OrdemServico() {
     }
   };
 
-  const handleViewDetails = (os: OrdemServicoType) => {
-    setSelectedOS(os);
-    setDialogOpen(true);
+  const handleViewDetails = async (os: OrdemServicoType) => {
+    try {
+      setLoading(true);
+      // Buscar OS completa com serviços e peças
+      const osCompleta = await ordemServicoService.getById(os.id);
+      setSelectedOS(osCompleta);
+      setDialogOpen(true);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao carregar detalhes da ordem de serviço');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOpenCreateDialog = () => {
@@ -628,149 +641,168 @@ export default function OrdemServico() {
       </TableContainer>
 
       {/* Dialog de Detalhes da OS */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={dialogOpen} onClose={() => { setDialogOpen(false); setTabValue(0); }} maxWidth="md" fullWidth>
         <DialogTitle>Detalhes da Ordem de Serviço #{selectedOS?.id}</DialogTitle>
         <DialogContent>
           {selectedOS && (
             <Box sx={{ pt: 2 }}>
-              <Box sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
-                gap: 2,
-                mb: 2
-              }}>
+              {/* Sistema de Abas */}
+              <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+                <Tab label="Informações" />
+                <Tab label="Fotos" />
+              </Tabs>
+
+              {/* Aba de Informações */}
+              {tabValue === 0 && (
                 <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Cliente
-                  </Typography>
-                  <Typography variant="body1">{selectedOS.cliente?.nome}</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Veículo
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedOS.veiculo
-                      ? `${selectedOS.veiculo.marca} ${selectedOS.veiculo.modelo} - ${selectedOS.veiculo.placa}`
-                      : 'N/A'}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Mecânico
-                  </Typography>
-                  <Typography variant="body1">{selectedOS.mecanico?.nome}</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Status
-                  </Typography>
-                  <Chip label={selectedOS.status} color={getStatusColor(selectedOS.status)} size="small" />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Data de Abertura
-                  </Typography>
-                  <Typography variant="body1">{formatDate(selectedOS.data_abertura)}</Typography>
-                </Box>
-                {selectedOS.data_agendamento && (
-                  <Box>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      Data do Agendamento
+                  <Box sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                    gap: 2,
+                    mb: 2
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Cliente
+                      </Typography>
+                      <Typography variant="body1">{selectedOS.cliente?.nome}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Veículo
+                      </Typography>
+                      <Typography variant="body1">
+                        {selectedOS.veiculo
+                          ? `${selectedOS.veiculo.marca} ${selectedOS.veiculo.modelo} - ${selectedOS.veiculo.placa}`
+                          : 'N/A'}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Mecânico
+                      </Typography>
+                      <Typography variant="body1">{selectedOS.mecanico?.nome}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Status
+                      </Typography>
+                      <Chip label={selectedOS.status} color={getStatusColor(selectedOS.status)} size="small" />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Data de Abertura
+                      </Typography>
+                      <Typography variant="body1">{formatDate(selectedOS.data_abertura)}</Typography>
+                    </Box>
+                    {selectedOS.data_agendamento && (
+                      <Box>
+                        <Typography variant="subtitle2" color="textSecondary">
+                          Data do Agendamento
+                        </Typography>
+                        <Typography variant="body1" color="warning.main" fontWeight="bold">
+                          {formatDate(selectedOS.data_agendamento)}
+                        </Typography>
+                      </Box>
+                    )}
+                    {selectedOS.data_conclusao && (
+                      <Box>
+                        <Typography variant="subtitle2" color="textSecondary">
+                          Data de Conclusão
+                        </Typography>
+                        <Typography variant="body1">{formatDate(selectedOS.data_conclusao)}</Typography>
+                      </Box>
+                    )}
+                  </Box>
+                  {selectedOS.servicos && selectedOS.servicos.length > 0 && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                        Serviços
+                      </Typography>
+                      <TableContainer component={Paper} variant="outlined">
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Serviço</TableCell>
+                              <TableCell align="right">Quantidade</TableCell>
+                              <TableCell align="right">Preço Unit.</TableCell>
+                              <TableCell align="right">Subtotal</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {selectedOS.servicos.map((s) => (
+                              <TableRow key={s.id}>
+                                <TableCell>{s.servico?.nome}</TableCell>
+                                <TableCell align="right">{s.quantidade}</TableCell>
+                                <TableCell align="right">{formatCurrency(s.preco_servico)}</TableCell>
+                                <TableCell align="right">
+                                  {formatCurrency(s.preco_servico * s.quantidade)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Box>
+                  )}
+                  {selectedOS.pecas && selectedOS.pecas.length > 0 && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                        Peças
+                      </Typography>
+                      <TableContainer component={Paper} variant="outlined">
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Peça</TableCell>
+                              <TableCell align="right">Quantidade</TableCell>
+                              <TableCell align="right">Preço Unit.</TableCell>
+                              <TableCell align="right">Subtotal</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {selectedOS.pecas.map((p) => (
+                              <TableRow key={p.id}>
+                                <TableCell>{p.peca?.nome}</TableCell>
+                                <TableCell align="right">{p.quantidade}</TableCell>
+                                <TableCell align="right">{formatCurrency(p.preco_unitario)}</TableCell>
+                                <TableCell align="right">
+                                  {formatCurrency(p.preco_unitario * p.quantidade)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Box>
+                  )}
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+                    <Typography variant="h6">
+                      Desconto: {formatCurrency(selectedOS.desconto)}
                     </Typography>
-                    <Typography variant="body1" color="warning.main" fontWeight="bold">
-                      {formatDate(selectedOS.data_agendamento)}
+                    <Typography variant="h6">
+                      Total: {formatCurrency(selectedOS.valor_total)}
                     </Typography>
                   </Box>
-                )}
-                {selectedOS.data_conclusao && (
-                  <Box>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      Data de Conclusão
-                    </Typography>
-                    <Typography variant="body1">{formatDate(selectedOS.data_conclusao)}</Typography>
-                  </Box>
-                )}
-              </Box>
-              {selectedOS.servicos && selectedOS.servicos.length > 0 && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                    Serviços
-                  </Typography>
-                  <TableContainer component={Paper} variant="outlined">
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Serviço</TableCell>
-                          <TableCell align="right">Quantidade</TableCell>
-                          <TableCell align="right">Preço Unit.</TableCell>
-                          <TableCell align="right">Subtotal</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedOS.servicos.map((s) => (
-                          <TableRow key={s.id}>
-                            <TableCell>{s.servico?.nome}</TableCell>
-                            <TableCell align="right">{s.quantidade}</TableCell>
-                            <TableCell align="right">{formatCurrency(s.preco_servico)}</TableCell>
-                            <TableCell align="right">
-                              {formatCurrency(s.preco_servico * s.quantidade)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
                 </Box>
               )}
-              {selectedOS.pecas && selectedOS.pecas.length > 0 && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                    Peças
-                  </Typography>
-                  <TableContainer component={Paper} variant="outlined">
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Peça</TableCell>
-                          <TableCell align="right">Quantidade</TableCell>
-                          <TableCell align="right">Preço Unit.</TableCell>
-                          <TableCell align="right">Subtotal</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedOS.pecas.map((p) => (
-                          <TableRow key={p.id}>
-                            <TableCell>{p.peca?.nome}</TableCell>
-                            <TableCell align="right">{p.quantidade}</TableCell>
-                            <TableCell align="right">{formatCurrency(p.preco_unitario)}</TableCell>
-                            <TableCell align="right">
-                              {formatCurrency(p.preco_unitario * p.quantidade)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+
+              {/* Aba de Fotos */}
+              {tabValue === 1 && (
+                <Box>
+                  <FotoGallery osId={selectedOS.id} readonly={selectedOS.status === 'Pago'} />
                 </Box>
               )}
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-                <Typography variant="h6">
-                  Desconto: {formatCurrency(selectedOS.desconto)}
-                </Typography>
-                <Typography variant="h6">
-                  Total: {formatCurrency(selectedOS.valor_total)}
-                </Typography>
-              </Box>
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Fechar</Button>
+          <Button onClick={() => { setDialogOpen(false); setTabValue(0); }}>Fechar</Button>
         </DialogActions>
       </Dialog>
       <Dialog open={createDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
         <DialogTitle>{editingOS ? `Editar Ordem de Serviço #${editingOS.id}` : 'Nova Ordem de Serviço'}</DialogTitle>
+
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Box sx={{
@@ -849,20 +881,28 @@ export default function OrdemServico() {
               )}
 
               {formData.status === 'Pago' && (
-                <TextField
-                  select
-                  label="Forma de Pagamento *"
-                  value={formData.forma_pagamento || ''}
-                  onChange={(e) => setFormData({ ...formData, forma_pagamento: e.target.value })}
-                  fullWidth
-                  required
-                >
-                  <MenuItem value="Dinheiro">Dinheiro</MenuItem>
-                  <MenuItem value="Cartão Débito">Cartão Débito</MenuItem>
-                  <MenuItem value="Cartão Crédito">Cartão Crédito</MenuItem>
-                  <MenuItem value="PIX">PIX</MenuItem>
-                  <MenuItem value="Cheque">Cheque</MenuItem>
-                </TextField>
+                <>
+                  <TextField
+                    select
+                    label="Forma de Pagamento *"
+                    value={formData.forma_pagamento || ''}
+                    onChange={(e) => setFormData({ ...formData, forma_pagamento: e.target.value })}
+                    fullWidth
+                    required
+                  >
+                    <MenuItem value="Dinheiro">Dinheiro</MenuItem>
+                    <MenuItem value="Cartão Débito">Cartão Débito</MenuItem>
+                    <MenuItem value="Cartão Crédito">Cartão Crédito</MenuItem>
+                    <MenuItem value="PIX">PIX</MenuItem>
+                    <MenuItem value="Cheque">Cheque</MenuItem>
+                  </TextField>
+                  <CurrencyInput
+                    label="Desconto (R$)"
+                    value={formData.desconto || 0}
+                    onChange={(val) => setFormData({ ...formData, desconto: val })}
+                    fullWidth
+                  />
+                </>
               )}
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
@@ -1023,32 +1063,35 @@ export default function OrdemServico() {
                 </TableContainer>
               )}
             </Box>
-
-            {/* Desconto e Total */}
-            <Box sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
-              gap: 2,
-              alignItems: 'center'
-            }}>
-              <CurrencyInput
-                label="Desconto (R$)"
-                value={formData.desconto || 0}
-                onChange={(val) => setFormData({ ...formData, desconto: val })}
-                fullWidth
-              />
-              <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                <Typography variant="h6">
-                  Total: {formatCurrency(
-                    (formData.servicos?.reduce((sum, s) => sum + (s.quantidade * s.preco_unitario), 0) || 0) +
-                    (formData.pecas?.reduce((sum, p) => sum + (p.quantidade * p.preco_unitario), 0) || 0) -
-                    (formData.desconto || 0)
-                  )}
-                </Typography>
-              </Box>
-            </Box>
           </Box>
-        </DialogContent >
+        </DialogContent>
+
+        {/* Barra de Total Sticky - Bottom */}
+        <Box sx={{
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 1,
+          bgcolor: 'primary.main',
+          color: 'white',
+          py: 1.5,
+          px: 3,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0px -2px 8px rgba(0,0,0,0.15)',
+        }}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            Valor Total da OS
+          </Typography>
+          <Typography variant="h5" fontWeight="bold">
+            {formatCurrency(
+              (formData.servicos?.reduce((sum, s) => sum + (s.quantidade * s.preco_unitario), 0) || 0) +
+              (formData.pecas?.reduce((sum, p) => sum + (p.quantidade * p.preco_unitario), 0) || 0) -
+              (formData.desconto || 0)
+            )}
+          </Typography>
+        </Box>
+
         <DialogActions>
           <Button onClick={handleCloseCreateDialog}>Cancelar</Button>
           <Button onClick={handleSubmitCreate} variant="contained">

@@ -49,12 +49,12 @@ interface MenuItem {
 
 const todosMenuItems: MenuItem[] = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', modulo: null },
-  { text: 'Clientes', icon: <PeopleIcon />, path: '/clientes', modulo: 'clientes' },
+  { text: 'Ordem de Serviço', icon: <AssignmentIcon />, path: '/ordem-servico', modulo: 'ordem_servico' },
+  { text: 'Peças', icon: <InventoryIcon />, path: '/pecas', modulo: 'pecas' },
+  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: '/servicos', modulo: 'servicos' },
   { text: 'Veículos', icon: <DirectionsCarIcon />, path: '/veiculos', modulo: 'veiculos' },
   { text: 'Mecânicos', icon: <BuildIcon />, path: '/mecanicos', modulo: 'mecanicos' },
-  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: '/servicos', modulo: 'servicos' },
-  { text: 'Peças', icon: <InventoryIcon />, path: '/pecas', modulo: 'pecas' },
-  { text: 'Ordem de Serviço', icon: <AssignmentIcon />, path: '/ordem-servico', modulo: 'ordem_servico' },
+  { text: 'Clientes', icon: <PeopleIcon />, path: '/clientes', modulo: 'clientes' },
   {
     text: 'Financeiro',
     icon: <AttachMoneyIcon />,

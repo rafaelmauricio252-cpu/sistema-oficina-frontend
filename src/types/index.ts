@@ -115,6 +115,7 @@ export interface OSFoto {
   caminho_arquivo: string;
   descricao?: string;
   criado_em: string;
+  url: string; // URL completa retornada pelo backend
 }
 
 // ============================================
