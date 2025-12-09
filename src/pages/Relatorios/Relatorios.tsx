@@ -492,10 +492,10 @@ export default function Relatorios() {
                       }
                     >
                       <MenuItem value="">Todos</MenuItem>
-                      <MenuItem value="Aberta">Aberta</MenuItem>
-                      <MenuItem value="Em Andamento">Em Andamento</MenuItem>
+                      <MenuItem value="Agendamento">Agendamento</MenuItem>
+                      <MenuItem value="Em andamento">Em andamento</MenuItem>
+                      <MenuItem value="Finalizada">Finalizada</MenuItem>
                       <MenuItem value="Pago">Pago</MenuItem>
-                      <MenuItem value="Cancelada">Cancelada</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
