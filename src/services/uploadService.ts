@@ -33,11 +33,8 @@ const uploadService = {
             formData.append('descricao', descricao);
         }
 
-        const response = await api.post<UploadResponse>('/upload/foto', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+        // Axios detecta automaticamente FormData e configura Content-Type correto
+        const response = await api.post<UploadResponse>('/upload/foto', formData);
         return response.data;
     },
 

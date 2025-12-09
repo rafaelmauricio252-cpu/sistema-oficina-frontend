@@ -24,6 +24,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Não sobrescrever Content-Type se for FormData (upload de arquivos)
+    // Axios configura automaticamente o Content-Type correto para FormData
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {
