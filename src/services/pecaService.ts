@@ -33,6 +33,21 @@ export const pecaService = {
     });
     return response.data.pecas;
   },
+
+  async darEntrada(dados: { peca_id: number; quantidade: number; motivo: string }) {
+    const response = await api.post('/pecas/entrada', dados);
+    return response.data;
+  },
+
+  async darSaida(dados: { peca_id: number; quantidade: number; motivo: string }) {
+    const response = await api.post('/pecas/saida', dados);
+    return response.data;
+  },
+
+  async buscarHistorico(peca_id: number) {
+    const response = await api.get(`/pecas/${peca_id}/historico`);
+    return response.data;
+  }
 };
 
 export default pecaService;

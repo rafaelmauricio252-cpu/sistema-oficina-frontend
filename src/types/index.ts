@@ -369,3 +369,17 @@ export interface ResetarSenhaResponse {
     email: string;
   };
 }
+
+export interface Movimentacao {
+  id: number;
+  peca_id: number;
+  os_id: number | null;
+  usuario_id: number | null;
+  tipo_movimentacao: 'ENTRADA' | 'SAIDA';
+  quantidade: number;
+  quantidade_anterior: number;
+  quantidade_nova: number;
+  motivo: string;
+  data_movimentacao: string;
+  usuario_nome?: string;
+}

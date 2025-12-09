@@ -21,6 +21,8 @@ import {
   Chip,
   Snackbar,
   InputAdornment,
+  Autocomplete,
+  Tooltip,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -29,8 +31,14 @@ import {
   Warning as WarningIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Check as CheckIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
-import type { Peca, PecaFormData } from '../../types';
+import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
+import type { Peca, PecaFormData, Movimentacao } from '../../types';
 import pecaService from '../../services/pecaService';
 
 export default function Pecas() {
@@ -42,6 +50,22 @@ export default function Pecas() {
   const [editingPeca, setEditingPeca] = useState<Peca | null>(null);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dialogEntradaAberto, setDialogEntradaAberto] = useState(false);
+  const [pecaSelecionadaEntrada, setPecaSelecionadaEntrada] = useState<Peca | null>(null);
+  const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
+  const [motivoEntrada, setMotivoEntrada] = useState('');
+  const [loadingEntrada, setLoadingEntrada] = useState(false);
+  const [highlightId, setHighlightId] = useState<number | null>(null);
+  const [dialogSaidaAberto, setDialogSaidaAberto] = useState(false);
+  const [pecaSelecionadaSaida, setPecaSelecionadaSaida] = useState<Peca | null>(null);
+  const [quantidadeSaida, setQuantidadeSaida] = useState('');
+  const [motivoSaida, setMotivoSaida] = useState('');
+  const [loadingSaida, setLoadingSaida] = useState(false);
+  const [dialogHistoricoAberto, setDialogHistoricoAberto] = useState(false);
+  const [pecaHistorico, setPecaHistorico] = useState<Peca | null>(null);
+  const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>([]);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [snackbar, setSnackbar] = useState({ aberto: false, mensagem: '', tipo: 'success' as 'success' | 'error' });
   const [formData, setFormData] = useState<PecaFormData>({
     nome: '',
     numero_peca: '',
@@ -177,7 +201,31 @@ export default function Pecas() {
 
   const isEstoqueBaixo = (peca: Peca) => peca.quantidade_estoque <= peca.estoque_minimo;
 
+  const handleAbrirHistorico = async (peca: Peca) => {
+    setPecaHistorico(peca);
+    setDialogHistoricoAberto(true);
+    setLoadingHistorico(true);
 
+    try {
+      const dados = await pecaService.buscarHistorico(peca.id);
+      setMovimentacoes(dados.movimentacoes);
+    } catch (erro) {
+      setSnackbar({
+        aberto: true,
+        mensagem: 'Erro ao carregar histórico',
+        tipo: 'error'
+      });
+      setMovimentacoes([]);
+    } finally {
+      setLoadingHistorico(false);
+    }
+  };
+
+  const fecharHistorico = () => {
+    setDialogHistoricoAberto(false);
+    setPecaHistorico(null);
+    setMovimentacoes([]);
+  };
 
   return (
     <Box>
@@ -203,6 +251,30 @@ export default function Pecas() {
               Limpar
             </Button>
           )}
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<TrendingUpIcon />}
+            onClick={() => setDialogEntradaAberto(true)}
+            sx={{
+              backgroundColor: '#4caf50',
+              '&:hover': { backgroundColor: '#45a049' }
+            }}
+          >
+            Dar Entrada
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<TrendingDownIcon />}
+            onClick={() => setDialogSaidaAberto(true)}
+            sx={{
+              backgroundColor: '#f44336',
+              '&:hover': { backgroundColor: '#d32f2f' }
+            }}
+          >
+            Dar Saída
+          </Button>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
             Nova Peça
           </Button>
@@ -239,9 +311,10 @@ export default function Pecas() {
                   <TableRow
                     key={peca.id}
                     sx={{
-                      backgroundColor: highlightedId === peca.id ? '#ffebee' : (isEstoqueBaixo(peca) ? '#fff3e0' : 'inherit'),
+                      backgroundColor: highlightId === peca.id ? '#fff9c4' :
+                                       (highlightedId === peca.id ? '#ffebee' : (isEstoqueBaixo(peca) ? '#fff3e0' : 'inherit')),
                       border: highlightedId === peca.id ? '2px solid #f44336' : 'none',
-                      transition: 'all 0.3s ease-in-out',
+                      transition: 'background-color 0.3s ease',
                     }}
                   >
                     <TableCell>{peca.numero_peca}</TableCell>
@@ -261,6 +334,15 @@ export default function Pecas() {
                     <TableCell>{peca.estoque_minimo}</TableCell>
                     <TableCell>{peca.localizacao || '-'}</TableCell>
                     <TableCell>
+                      <Tooltip title="Ver histórico de movimentações">
+                        <IconButton
+                          onClick={() => handleAbrirHistorico(peca)}
+                          size="small"
+                          color="info"
+                        >
+                          <HistoryIcon />
+                        </IconButton>
+                      </Tooltip>
                       <IconButton size="small" onClick={() => handleOpenDialog(peca)} color="primary">
                         <EditIcon />
                       </IconButton>
@@ -342,8 +424,10 @@ export default function Pecas() {
                 type="number"
                 value={formData.quantidade_estoque}
                 onChange={(e) => setFormData({ ...formData, quantidade_estoque: Number(e.target.value) })}
-                required
+                required={!editingPeca}
+                disabled={!!editingPeca}
                 fullWidth
+                helperText={editingPeca ? 'Use os botões "Dar Entrada" ou "Dar Saída" para movimentar o estoque' : 'Estoque inicial da peça'}
                 sx={{
                   '& input[type=number]': { '-moz-appearance': 'textfield' },
                   '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
@@ -375,6 +459,401 @@ export default function Pecas() {
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancelar</Button>
           <Button onClick={handleSubmit} variant="contained">Salvar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal de Histórico de Movimentações */}
+      <Dialog
+        open={dialogHistoricoAberto}
+        onClose={fecharHistorico}
+        maxWidth="xl"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box>
+            <Typography variant="h6">
+              Histórico de Movimentações - {pecaHistorico?.nome}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Nº Peça: {pecaHistorico?.numero_peca} |
+              Estoque Atual: <strong>{pecaHistorico?.quantidade_estoque}</strong> unidades
+              {pecaHistorico && pecaHistorico.quantidade_estoque <= pecaHistorico.estoque_minimo &&
+                <Chip label="BAIXO" color="warning" size="small" sx={{ ml: 1 }} />
+              }
+            </Typography>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent dividers>
+          {loadingHistorico ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : movimentacoes.length === 0 ? (
+            <Box sx={{ textAlign: 'center', p: 4 }}>
+              <Typography color="text.secondary">
+                Nenhuma movimentação registrada para esta peça
+              </Typography>
+            </Box>
+          ) : (
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Data/Hora</TableCell>
+                    <TableCell>Tipo</TableCell>
+                    <TableCell align="right">Quantidade</TableCell>
+                    <TableCell align="right">Saldo Anterior</TableCell>
+                    <TableCell align="right">Saldo Novo</TableCell>
+                    <TableCell>Motivo</TableCell>
+                    <TableCell>Usuário</TableCell>
+                    <TableCell align="center">OS</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {movimentacoes.map((mov) => (
+                    <TableRow
+                      key={mov.id}
+                      hover
+                      sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}
+                    >
+                      <TableCell>
+                        {format(new Date(mov.data_movimentacao), 'dd/MM/yyyy HH:mm')}
+                      </TableCell>
+
+                      <TableCell>
+                        <Chip
+                          label={mov.tipo_movimentacao}
+                          size="small"
+                          color={mov.tipo_movimentacao === 'ENTRADA' ? 'success' : 'error'}
+                        />
+                      </TableCell>
+
+                      <TableCell
+                        align="right"
+                        sx={{
+                          fontWeight: 'bold',
+                          color: mov.quantidade > 0 ? 'success.main' : 'error.main'
+                        }}
+                      >
+                        {mov.quantidade > 0 ? '+' : ''}{mov.quantidade}
+                      </TableCell>
+
+                      <TableCell align="right">
+                        {mov.quantidade_anterior}
+                      </TableCell>
+
+                      <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                        {mov.quantidade_nova}
+                      </TableCell>
+
+                      <TableCell>
+                        <Tooltip title={mov.motivo}>
+                          <Typography variant="body2" noWrap sx={{ maxWidth: 300 }}>
+                            {mov.motivo}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
+
+                      <TableCell>
+                        <Typography variant="body2">
+                          {mov.usuario_nome || <em>Sistema</em>}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {mov.os_id ? (
+                          <Link
+                            to={`/ordem-servico?id=${mov.os_id}`}
+                            target="_blank"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <Chip
+                              label={`OS #${mov.os_id}`}
+                              size="small"
+                              clickable
+                              color="primary"
+                              variant="outlined"
+                            />
+                          </Link>
+                        ) : (
+                          <Typography variant="body2" color="text.secondary">-</Typography>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={fecharHistorico}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal de Entrada de Estoque */}
+      <Dialog
+        open={dialogEntradaAberto}
+        onClose={() => {
+          if (!loadingEntrada) {
+            setDialogEntradaAberto(false);
+            setPecaSelecionadaEntrada(null);
+            setQuantidadeEntrada('');
+            setMotivoEntrada('');
+          }
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ backgroundColor: '#4caf50', color: 'white' }}>
+          Entrada de Estoque
+        </DialogTitle>
+
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <Autocomplete
+              options={pecas}
+              getOptionLabel={(option) => `${option.numero_peca} - ${option.nome}`}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Peça *"
+                  required
+                  placeholder="Digite para buscar..."
+                />
+              )}
+              value={pecaSelecionadaEntrada}
+              onChange={(e, newValue) => setPecaSelecionadaEntrada(newValue)}
+              noOptionsText="Nenhuma peça encontrada"
+            />
+
+            <TextField
+              label="Quantidade *"
+              type="number"
+              value={quantidadeEntrada}
+              onChange={(e) => setQuantidadeEntrada(e.target.value)}
+              required
+              inputProps={{ min: 1 }}
+              helperText="Quantidade de unidades recebidas"
+            />
+
+            <TextField
+              label="Motivo *"
+              multiline
+              rows={3}
+              value={motivoEntrada}
+              onChange={(e) => setMotivoEntrada(e.target.value)}
+              required
+              helperText={`Mínimo 10 caracteres (${motivoEntrada.length}/10). Ex: Compra do fornecedor X, NF 12345`}
+              error={motivoEntrada.length > 0 && motivoEntrada.length < 10}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => {
+            setDialogEntradaAberto(false);
+            setPecaSelecionadaEntrada(null);
+            setQuantidadeEntrada('');
+            setMotivoEntrada('');
+          }} disabled={loadingEntrada}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={async () => {
+              setLoadingEntrada(true);
+              try {
+                const resultado = await pecaService.darEntrada({
+                  peca_id: pecaSelecionadaEntrada!.id,
+                  quantidade: parseInt(quantidadeEntrada),
+                  motivo: motivoEntrada.trim()
+                });
+
+                setSuccess(resultado.mensagem || 'Entrada registrada com sucesso!');
+
+                setDialogEntradaAberto(false);
+                setPecaSelecionadaEntrada(null);
+                setQuantidadeEntrada('');
+                setMotivoEntrada('');
+
+                await loadPecas();
+                setHighlightId(pecaSelecionadaEntrada!.id);
+                setTimeout(() => setHighlightId(null), 2000);
+
+              } catch (erro: any) {
+                setError(erro.response?.data?.erro || 'Erro ao registrar entrada');
+              } finally {
+                setLoadingEntrada(false);
+              }
+            }}
+            variant="contained"
+            color="success"
+            disabled={
+              !pecaSelecionadaEntrada ||
+              !quantidadeEntrada ||
+              parseInt(quantidadeEntrada) <= 0 ||
+              motivoEntrada.trim().length < 10 ||
+              loadingEntrada
+            }
+            startIcon={loadingEntrada ? <CircularProgress size={20} /> : <CheckIcon />}
+          >
+            {loadingEntrada ? 'Processando...' : 'Confirmar Entrada'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal de Saída de Estoque */}
+      <Dialog
+        open={dialogSaidaAberto}
+        onClose={() => {
+          if (!loadingSaida) {
+            setDialogSaidaAberto(false);
+            setPecaSelecionadaSaida(null);
+            setQuantidadeSaida('');
+            setMotivoSaida('');
+          }
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ backgroundColor: '#f44336', color: 'white' }}>
+          Saída de Estoque
+        </DialogTitle>
+
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <Autocomplete
+              options={pecas}
+              getOptionLabel={(option) => `${option.numero_peca} - ${option.nome} (Estoque: ${option.quantidade_estoque})`}
+              renderInput={(params) => (
+                <TextField {...params} label="Peça *" required />
+              )}
+              value={pecaSelecionadaSaida}
+              onChange={(e, newValue) => {
+                setPecaSelecionadaSaida(newValue);
+                setQuantidadeSaida('');
+              }}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <Box>
+                    <Typography variant="body2">
+                      {option.numero_peca} - {option.nome}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color={option.quantidade_estoque <= option.estoque_minimo ? 'error' : 'text.secondary'}
+                    >
+                      Estoque: {option.quantidade_estoque}
+                      {option.quantidade_estoque <= option.estoque_minimo && ' ⚠️ BAIXO'}
+                    </Typography>
+                  </Box>
+                </li>
+              )}
+            />
+
+            {pecaSelecionadaSaida && (
+              <Alert
+                severity={pecaSelecionadaSaida.quantidade_estoque <= pecaSelecionadaSaida.estoque_minimo ? 'warning' : 'info'}
+              >
+                Estoque atual: <strong>{pecaSelecionadaSaida.quantidade_estoque}</strong> unidades
+                {pecaSelecionadaSaida.quantidade_estoque <= pecaSelecionadaSaida.estoque_minimo &&
+                  ' (abaixo do mínimo!)'}
+              </Alert>
+            )}
+
+            <TextField
+              label="Quantidade *"
+              type="number"
+              value={quantidadeSaida}
+              onChange={(e) => setQuantidadeSaida(e.target.value)}
+              required
+              inputProps={{
+                min: 1,
+                max: pecaSelecionadaSaida?.quantidade_estoque || 999
+              }}
+              error={
+                pecaSelecionadaSaida &&
+                parseInt(quantidadeSaida) > pecaSelecionadaSaida.quantidade_estoque
+              }
+              helperText={
+                pecaSelecionadaSaida && parseInt(quantidadeSaida) > pecaSelecionadaSaida.quantidade_estoque
+                  ? `Quantidade excede o estoque disponível (${pecaSelecionadaSaida.quantidade_estoque})`
+                  : 'Quantidade de unidades a dar saída'
+              }
+            />
+
+            <TextField
+              label="Motivo *"
+              multiline
+              rows={3}
+              value={motivoSaida}
+              onChange={(e) => setMotivoSaida(e.target.value)}
+              required
+              helperText={`Mínimo 10 caracteres (${motivoSaida.length}/10). Ex: Teste de compatibilidade, Perda por dano`}
+              error={motivoSaida.length > 0 && motivoSaida.length < 10}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => {
+            setDialogSaidaAberto(false);
+            setPecaSelecionadaSaida(null);
+            setQuantidadeSaida('');
+            setMotivoSaida('');
+          }} disabled={loadingSaida}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={async () => {
+              setLoadingSaida(true);
+              try {
+                const resultado = await pecaService.darSaida({
+                  peca_id: pecaSelecionadaSaida!.id,
+                  quantidade: parseInt(quantidadeSaida),
+                  motivo: motivoSaida.trim()
+                });
+
+                setSuccess(resultado.mensagem);
+
+                // Alerta de estoque baixo?
+                if (resultado.dados?.alerta) {
+                  setTimeout(() => {
+                    setSuccess(resultado.dados.alerta.mensagem);
+                  }, 1000);
+                }
+
+                setDialogSaidaAberto(false);
+                setPecaSelecionadaSaida(null);
+                setQuantidadeSaida('');
+                setMotivoSaida('');
+
+                await loadPecas();
+                setHighlightId(pecaSelecionadaSaida!.id);
+                setTimeout(() => setHighlightId(null), 2000);
+
+              } catch (erro: any) {
+                setError(erro.response?.data?.erro || 'Erro ao registrar saída');
+              } finally {
+                setLoadingSaida(false);
+              }
+            }}
+            variant="contained"
+            color="error"
+            disabled={
+              !pecaSelecionadaSaida ||
+              !quantidadeSaida ||
+              parseInt(quantidadeSaida) <= 0 ||
+              parseInt(quantidadeSaida) > (pecaSelecionadaSaida?.quantidade_estoque || 0) ||
+              motivoSaida.trim().length < 10 ||
+              loadingSaida
+            }
+            startIcon={loadingSaida ? <CircularProgress size={20} /> : <CheckIcon />}
+          >
+            {loadingSaida ? 'Processando...' : 'Confirmar Saída'}
+          </Button>
         </DialogActions>
       </Dialog>
 
