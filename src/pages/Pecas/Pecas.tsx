@@ -65,7 +65,6 @@ export default function Pecas() {
   const [pecaHistorico, setPecaHistorico] = useState<Peca | null>(null);
   const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>([]);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
-  const [snackbar, setSnackbar] = useState({ aberto: false, mensagem: '', tipo: 'success' as 'success' | 'error' });
   const [formData, setFormData] = useState<PecaFormData>({
     nome: '',
     numero_peca: '',
@@ -625,7 +624,7 @@ export default function Pecas() {
                 />
               )}
               value={pecaSelecionadaEntrada}
-              onChange={(e, newValue) => setPecaSelecionadaEntrada(newValue)}
+              onChange={(_e, newValue) => setPecaSelecionadaEntrada(newValue)}
               noOptionsText="Nenhuma peça encontrada"
             />
 
@@ -731,7 +730,7 @@ export default function Pecas() {
                 <TextField {...params} label="Peça *" required />
               )}
               value={pecaSelecionadaSaida}
-              onChange={(e, newValue) => {
+              onChange={(_e, newValue) => {
                 setPecaSelecionadaSaida(newValue);
                 setQuantidadeSaida('');
               }}
@@ -774,8 +773,8 @@ export default function Pecas() {
                 max: pecaSelecionadaSaida?.quantidade_estoque || 999
               }}
               error={
-                pecaSelecionadaSaida &&
-                parseInt(quantidadeSaida) > pecaSelecionadaSaida.quantidade_estoque
+                !!(pecaSelecionadaSaida &&
+                parseInt(quantidadeSaida) > pecaSelecionadaSaida.quantidade_estoque)
               }
               helperText={
                 pecaSelecionadaSaida && parseInt(quantidadeSaida) > pecaSelecionadaSaida.quantidade_estoque
