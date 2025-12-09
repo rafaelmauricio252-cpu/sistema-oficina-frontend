@@ -209,11 +209,7 @@ export default function Pecas() {
       const dados = await pecaService.buscarHistorico(peca.id);
       setMovimentacoes(dados.movimentacoes);
     } catch (erro) {
-      setSnackbar({
-        aberto: true,
-        mensagem: 'Erro ao carregar histórico',
-        tipo: 'error'
-      });
+      setError('Erro ao carregar histórico');
       setMovimentacoes([]);
     } finally {
       setLoadingHistorico(false);
