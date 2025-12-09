@@ -33,6 +33,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Receipt as ReceiptIcon,
   ManageAccounts as ManageAccountsIcon,
+  Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import TrocarSenhaDialog from '../TrocarSenhaDialog/TrocarSenhaDialog';
@@ -64,6 +65,7 @@ const todosMenuItems: MenuItem[] = [
       { text: 'Receitas', icon: <ReceiptIcon />, path: '/financeiro/receitas' },
     ]
   },
+  { text: 'Relatórios', icon: <AssessmentIcon />, path: '/relatorios', modulo: null },
   { text: 'Usuários', icon: <ManageAccountsIcon />, path: '/usuarios', modulo: 'admin' },
 ];
 

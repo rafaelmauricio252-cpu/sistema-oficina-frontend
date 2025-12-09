@@ -16,6 +16,7 @@ import OrdemServico from './pages/OrdemServico/OrdemServico';
 import FinanceiroDashboard from './pages/Financeiro/Dashboard';
 import FinanceiroReceitas from './pages/Financeiro/Receitas';
 import Usuarios from './pages/Usuarios/Usuarios';
+import Relatorios from './pages/Relatorios/Relatorios';
 
 import { theme } from './theme/theme';
 
@@ -49,6 +50,7 @@ function App() {
               <Route path="financeiro/dashboard" element={<FinanceiroDashboard />} />
               <Route path="financeiro/receitas" element={<FinanceiroReceitas />} />
               <Route path="usuarios" element={<Usuarios />} />
+              <Route path="relatorios" element={<Relatorios />} />
             </Route>
 
             {/* Rota padrão */}
