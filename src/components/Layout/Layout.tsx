@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -72,19 +72,15 @@ const todosMenuItems: MenuItem[] = [
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [financeiroOpen, setFinanceiroOpen] = useState(true);
-  const [dialogSenhaOpen, setDialogSenhaOpen] = useState(false);
+  const [dialogSenhaManualmenteAberto, setDialogSenhaManualmenteAberto] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { usuario, logout, temPermissao, eAdmin } = useAuth();
 
-  // Verificar se deve trocar senha
-  useEffect(() => {
-    if (usuario?.deve_trocar_senha) {
-      setDialogSenhaOpen(true);
-    }
-  }, [usuario]);
+  // Estado derivado: dialog abre se deve trocar senha OU se foi aberto manualmente
+  const dialogSenhaOpen = usuario?.deve_trocar_senha || dialogSenhaManualmenteAberto;
 
   // Filtrar menu baseado em permissões
   const menuItems = todosMenuItems.filter(item => {
@@ -266,7 +262,7 @@ export default function Layout() {
       <TrocarSenhaDialog
         open={dialogSenhaOpen}
         obrigatorio={usuario?.deve_trocar_senha}
-        onClose={() => setDialogSenhaOpen(false)}
+        onClose={() => setDialogSenhaManualmenteAberto(false)}
       />
     </Box>
   );

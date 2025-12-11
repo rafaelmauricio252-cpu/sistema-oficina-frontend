@@ -35,6 +35,7 @@ export default function FotoGallery({ osId, readonly = false }: FotoGalleryProps
     const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
     const [selectedFoto, setSelectedFoto] = useState<OSFoto | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [descricao, setDescricao] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -44,6 +45,24 @@ export default function FotoGallery({ osId, readonly = false }: FotoGalleryProps
     useEffect(() => {
         loadFotos();
     }, [osId]);
+
+    // Gerenciar preview da imagem selecionada e evitar memory leak
+    useEffect(() => {
+        let previewUrl: string | null = null;
+
+        if (selectedFile) {
+            previewUrl = URL.createObjectURL(selectedFile);
+            setPreviewImage(previewUrl);
+        } else {
+            setPreviewImage(null);
+        }
+
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [selectedFile]);
 
     const loadFotos = async () => {
         try {
@@ -200,7 +219,7 @@ export default function FotoGallery({ osId, readonly = false }: FotoGalleryProps
                             </Typography>
                             <Box mt={2}>
                                 <img
-                                    src={URL.createObjectURL(selectedFile)}
+                                    src={previewImage || ''}
                                     alt="Preview"
                                     style={{ width: '100%', maxHeight: 300, objectFit: 'contain' }}
                                 />
