@@ -80,7 +80,6 @@ function formatarData(data: any): string {
 function gerarCabecalho(doc: jsPDF, titulo: string) {
   // Logo da empresa (se disponível)
   try {
-    const logoUrl = '/assets/logo.jpg';
     // A logo será carregada antes da geração do PDF nas funções que chamam este método
     // Por enquanto, vamos adicionar espaço para a logo e renderizar o título abaixo
     doc.setFontSize(10);

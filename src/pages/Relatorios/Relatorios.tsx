@@ -5,7 +5,6 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   FormControl,
   InputLabel,
   Select,
@@ -329,8 +328,8 @@ export default function Relatorios() {
                 Campos do Relatório
               </Typography>
               <FormGroup>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6} md={4}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -340,8 +339,8 @@ export default function Relatorios() {
                       }
                       label="Número"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -351,8 +350,8 @@ export default function Relatorios() {
                       }
                       label="Data Abertura"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -362,8 +361,8 @@ export default function Relatorios() {
                       }
                       label="Data Fechamento"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -373,8 +372,8 @@ export default function Relatorios() {
                       }
                       label="Cliente"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -384,8 +383,8 @@ export default function Relatorios() {
                       }
                       label="Placa do Veículo"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -395,8 +394,8 @@ export default function Relatorios() {
                       }
                       label="Mecânico"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -406,8 +405,8 @@ export default function Relatorios() {
                       }
                       label="Status"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -417,8 +416,8 @@ export default function Relatorios() {
                       }
                       label="Valor Serviços"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -428,8 +427,8 @@ export default function Relatorios() {
                       }
                       label="Valor Peças"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -439,8 +438,8 @@ export default function Relatorios() {
                       }
                       label="Valor Final"
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </FormGroup>
             </Paper>
 
@@ -449,8 +448,8 @@ export default function Relatorios() {
               <Typography variant="h6" gutterBottom>
                 Filtros
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2 }}>
+                <Box>
                   <DatePicker
                     label="Data Início"
                     value={relatorioOS.filtros.data_inicio}
@@ -463,8 +462,8 @@ export default function Relatorios() {
                     format="dd/MM/yyyy"
                     slotProps={{ textField: { fullWidth: true } }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                </Box>
+                <Box>
                   <DatePicker
                     label="Data Fim"
                     value={relatorioOS.filtros.data_fim}
@@ -477,8 +476,8 @@ export default function Relatorios() {
                     format="dd/MM/yyyy"
                     slotProps={{ textField: { fullWidth: true } }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                </Box>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Status</InputLabel>
                     <Select
@@ -498,8 +497,8 @@ export default function Relatorios() {
                       <MenuItem value="Pago">Pago</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Busca"
@@ -512,8 +511,8 @@ export default function Relatorios() {
                       })
                     }
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
 
             {/* Botão Gerar PDF */}
@@ -538,8 +537,8 @@ export default function Relatorios() {
                 Campos do Relatório
               </Typography>
               <FormGroup>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6} md={4}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -549,8 +548,8 @@ export default function Relatorios() {
                       }
                       label="Número"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -560,8 +559,8 @@ export default function Relatorios() {
                       }
                       label="Data Fechamento"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -571,8 +570,8 @@ export default function Relatorios() {
                       }
                       label="Cliente"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -582,8 +581,8 @@ export default function Relatorios() {
                       }
                       label="Valor Serviços"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -593,8 +592,8 @@ export default function Relatorios() {
                       }
                       label="Valor Peças"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -604,8 +603,8 @@ export default function Relatorios() {
                       }
                       label="Valor Final"
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </FormGroup>
             </Paper>
 
@@ -614,8 +613,8 @@ export default function Relatorios() {
               <Typography variant="h6" gutterBottom>
                 Filtros
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box>
                   <DatePicker
                     label="Data Início"
                     value={relatorioFinanceiro.filtros.data_inicio}
@@ -628,8 +627,8 @@ export default function Relatorios() {
                     format="dd/MM/yyyy"
                     slotProps={{ textField: { fullWidth: true } }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                </Box>
+                <Box>
                   <DatePicker
                     label="Data Fim"
                     value={relatorioFinanceiro.filtros.data_fim}
@@ -642,8 +641,8 @@ export default function Relatorios() {
                     format="dd/MM/yyyy"
                     slotProps={{ textField: { fullWidth: true } }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Busca"
@@ -656,8 +655,8 @@ export default function Relatorios() {
                       })
                     }
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
 
             {/* Resumo */}
@@ -665,32 +664,32 @@ export default function Relatorios() {
               <Typography variant="h6" gutterBottom>
                 Resumo
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box>
                   <Typography variant="body2" color="text.secondary">
                     Total em Serviços
                   </Typography>
                   <Typography variant="h6">
                     R$ {relatorioFinanceiro.resumo.total_servicos.toFixed(2)}
                   </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <Typography variant="body2" color="text.secondary">
                     Total em Peças
                   </Typography>
                   <Typography variant="h6">
                     R$ {relatorioFinanceiro.resumo.total_pecas.toFixed(2)}
                   </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <Typography variant="body2" color="text.secondary">
                     Valor Total Geral
                   </Typography>
                   <Typography variant="h6" color="primary">
                     R$ {relatorioFinanceiro.resumo.valor_total_geral.toFixed(2)}
                   </Typography>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
 
             {/* Botão Gerar PDF */}
@@ -715,8 +714,8 @@ export default function Relatorios() {
                 Campos do Relatório
               </Typography>
               <FormGroup>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6} md={4}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -726,8 +725,8 @@ export default function Relatorios() {
                       }
                       label="Código"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -737,8 +736,8 @@ export default function Relatorios() {
                       }
                       label="Nome"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -748,8 +747,8 @@ export default function Relatorios() {
                       }
                       label="Categoria"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -759,8 +758,8 @@ export default function Relatorios() {
                       }
                       label="Quantidade em Estoque"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -770,8 +769,8 @@ export default function Relatorios() {
                       }
                       label="Preço de Custo"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -781,8 +780,8 @@ export default function Relatorios() {
                       }
                       label="Preço de Venda"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -792,8 +791,8 @@ export default function Relatorios() {
                       }
                       label="Valor Total (Custo)"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -803,8 +802,8 @@ export default function Relatorios() {
                       }
                       label="Valor Total (Venda)"
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  </Box>
+                  <Box>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -814,8 +813,8 @@ export default function Relatorios() {
                       }
                       label="Margem de Lucro"
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </FormGroup>
             </Paper>
 
@@ -824,8 +823,8 @@ export default function Relatorios() {
               <Typography variant="h6" gutterBottom>
                 Filtros
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box>
                   <FormControl fullWidth>
                     <InputLabel>Categoria</InputLabel>
                     <Select
@@ -842,8 +841,8 @@ export default function Relatorios() {
                       {/* Categorias serão carregadas via API futuramente */}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                </Box>
+                <Box>
                   <TextField
                     fullWidth
                     label="Busca"
@@ -856,8 +855,8 @@ export default function Relatorios() {
                       })
                     }
                   />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                </Box>
+                <Box>
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -872,8 +871,8 @@ export default function Relatorios() {
                     }
                     label="Mostrar apenas com estoque baixo"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
 
             {/* Resumo */}
@@ -881,32 +880,32 @@ export default function Relatorios() {
               <Typography variant="h6" gutterBottom>
                 Resumo
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box>
                   <Typography variant="body2" color="text.secondary">
                     Total de Itens
                   </Typography>
                   <Typography variant="h6">
                     {relatorioEstoque.resumo.total_itens}
                   </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <Typography variant="body2" color="text.secondary">
                     Valor Total em Estoque (Custo)
                   </Typography>
                   <Typography variant="h6">
                     R$ {relatorioEstoque.resumo.valor_total_custo.toFixed(2)}
                   </Typography>
-                </Grid>
-                <Grid item xs={12} sm={4}>
+                </Box>
+                <Box>
                   <Typography variant="body2" color="text.secondary">
                     Valor Total Potencial (Venda)
                   </Typography>
                   <Typography variant="h6" color="primary">
                     R$ {relatorioEstoque.resumo.valor_total_venda.toFixed(2)}
                   </Typography>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Paper>
 
             {/* Botão Gerar PDF */}
