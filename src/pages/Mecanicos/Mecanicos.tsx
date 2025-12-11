@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -47,19 +47,7 @@ export default function Mecanicos() {
     email: '',
   });
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    loadMecanicos();
-  }, []);
-
-  const loadMecanicos = async () => {
+  const loadMecanicos = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -70,9 +58,13 @@ export default function Mecanicos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSearch = async () => {
+  useEffect(() => {
+    loadMecanicos();
+  }, [loadMecanicos]);
+
+  const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) {
       loadMecanicos();
       return;
@@ -88,7 +80,15 @@ export default function Mecanicos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, loadMecanicos]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [handleSearch]);
 
   const handleClearSearch = () => {
     setSearchQuery('');

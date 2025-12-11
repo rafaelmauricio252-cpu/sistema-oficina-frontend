@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -58,19 +58,7 @@ export default function Veiculos() {
     km: undefined,
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -85,7 +73,37 @@ export default function Veiculos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery.trim()) {
+      loadData();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await veiculoService.search(searchQuery);
+      setVeiculos(data);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar veículos');
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery, loadData]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [handleSearch]);
 
   const verificarProtecao = async (id: number) => {
     try {
@@ -188,24 +206,6 @@ export default function Veiculos() {
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.response?.data?.erro || 'Erro ao excluir veículo');
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      loadData();
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await veiculoService.search(searchQuery);
-      setVeiculos(data);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao buscar veículos');
-    } finally {
-      setLoading(false);
     }
   };
 

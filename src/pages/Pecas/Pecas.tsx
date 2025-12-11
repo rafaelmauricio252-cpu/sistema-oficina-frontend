@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -88,29 +88,16 @@ export default function Pecas() {
     localizacao: '',
   });
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    loadPecas();
-    loadCategorias();
-  }, []);
-
-  const loadCategorias = async () => {
+  const loadCategorias = useCallback(async () => {
     try {
       const data = await pecaService.getCategorias();
       setCategorias(data);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
     }
-  };
+  }, []);
 
-  const loadPecas = async () => {
+  const loadPecas = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -122,9 +109,14 @@ export default function Pecas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSearch = async () => {
+  useEffect(() => {
+    loadPecas();
+    loadCategorias();
+  }, [loadPecas, loadCategorias]);
+
+  const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) {
       loadPecas();
       return;
@@ -142,7 +134,15 @@ export default function Pecas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, loadPecas]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [handleSearch]);
 
   const handleClearSearch = () => {
     setSearchQuery('');

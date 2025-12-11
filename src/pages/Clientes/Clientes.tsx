@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -59,19 +59,7 @@ export default function Clientes() {
     },
   });
 
-  useEffect(() => {
-    loadClientes();
-  }, []);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  const loadClientes = async () => {
+  const loadClientes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -82,7 +70,38 @@ export default function Clientes() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadClientes();
+  }, [loadClientes]);
+
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery.trim()) {
+      loadClientes();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await clienteService.search(searchQuery);
+      setClientes(data);
+      setPage(0);
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao buscar clientes');
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery, loadClientes]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [handleSearch]);
 
   const handleOpenDialog = async (cliente?: Cliente) => {
     if (cliente) {
@@ -178,25 +197,6 @@ export default function Clientes() {
 
   const handleChange = (field: keyof ClienteFormData, value: string) => {
     setFormData({ ...formData, [field]: value });
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      loadClientes();
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await clienteService.search(searchQuery);
-      setClientes(data);
-      setPage(0);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao buscar clientes');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleClearSearch = () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -51,19 +51,7 @@ export default function Servicos() {
     ativo: true,
   });
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    loadServicos();
-  }, []);
-
-  const loadServicos = async () => {
+  const loadServicos = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -74,9 +62,13 @@ export default function Servicos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSearch = async () => {
+  useEffect(() => {
+    loadServicos();
+  }, [loadServicos]);
+
+  const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) {
       loadServicos();
       return;
@@ -92,7 +84,15 @@ export default function Servicos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, loadServicos]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [handleSearch]);
 
   const handleClearSearch = () => {
     setSearchQuery('');
