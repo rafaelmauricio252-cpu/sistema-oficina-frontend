@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -23,7 +23,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import relatorioService from '../../services/relatorioService';
+import pecaService from '../../services/pecaService';
 import { gerarPDFRelatorioOS, gerarPDFRelatorioFinanceiro, gerarPDFRelatorioEstoque } from '../../utils/pdfGenerator';
+import type { Categoria } from '../../types';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -50,6 +52,7 @@ function TabPanel(props: TabPanelProps) {
 export default function Relatorios() {
   const [tabAtiva, setTabAtiva] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -124,6 +127,19 @@ export default function Relatorios() {
       valor_total_venda: 0
     }
   });
+
+  // Carregar categorias ao montar o componente
+  useEffect(() => {
+    const carregarCategorias = async () => {
+      try {
+        const cats = await pecaService.getCategorias();
+        setCategorias(cats);
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+      }
+    };
+    carregarCategorias();
+  }, []);
 
   const handleGerarPDF = async (tipo: 'os' | 'financeiro' | 'estoque') => {
     try {
@@ -840,7 +856,11 @@ export default function Relatorios() {
                       }
                     >
                       <MenuItem value="">Todas</MenuItem>
-                      {/* Categorias serão carregadas via API futuramente */}
+                      {categorias.map((cat) => (
+                        <MenuItem key={cat.id} value={cat.nome}>
+                          {cat.nome}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Box>
