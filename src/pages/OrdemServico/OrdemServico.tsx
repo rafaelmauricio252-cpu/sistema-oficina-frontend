@@ -13,7 +13,6 @@ import {
   Typography,
   IconButton,
   Alert,
-  CircularProgress,
   Chip,
   Dialog,
   DialogTitle,
@@ -693,7 +692,7 @@ export default function OrdemServico() {
           component="div"
           count={ordensFiltradas.length}
           page={page}
-          onPageChange={(e, newPage) => setPage(newPage)}
+          onPageChange={(_, newPage) => setPage(newPage)}
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={(e) => {
             setRowsPerPage(parseInt(e.target.value, 10));

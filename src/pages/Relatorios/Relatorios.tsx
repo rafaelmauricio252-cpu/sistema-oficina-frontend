@@ -314,7 +314,7 @@ export default function Relatorios() {
         </Typography>
 
         <Paper sx={{ p: 3 }}>
-          <Tabs value={tabAtiva} onChange={(e, v) => setTabAtiva(v)}>
+          <Tabs value={tabAtiva} onChange={(_, v) => setTabAtiva(v)}>
             <Tab label="Ordens de Serviço" />
             <Tab label="Financeiro" />
             <Tab label="Estoque" />

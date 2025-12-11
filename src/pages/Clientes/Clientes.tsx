@@ -17,7 +17,6 @@ import {
   DialogActions,
   TextField,
   Alert,
-  CircularProgress,
   Snackbar,
   TablePagination,
   Skeleton,
@@ -340,7 +339,7 @@ export default function Clientes() {
           component="div"
           count={clientes.length}
           page={page}
-          onPageChange={(e, newPage) => setPage(newPage)}
+          onPageChange={(_, newPage) => setPage(newPage)}
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={(e) => {
             setRowsPerPage(parseInt(e.target.value, 10));
