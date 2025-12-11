@@ -177,44 +177,44 @@ export default function OrdemServico() {
       const modeloVeiculo = os.veiculo ? `${os.veiculo.modelo} - ${os.veiculo.placa}` : 'N/A';
       const total = formatCurrency(os.valor_total);
 
-      let message = `*FC CENTRO AUTOMOTIVO*\n*Oficina Mecânica*\n\n` +
+      let message = `🔧 *FC CENTRO AUTOMOTIVO*\n*Oficina Mecânica*\n\n` +
         `Olá *${nomeCliente}*, aqui está o resumo da sua OS *#${os.id}*\n\n` +
-        `*Veículo:* ${modeloVeiculo}\n` +
-        `*Status:* ${os.status}\n`;
+        `🚗 *Veículo:* ${modeloVeiculo}\n` +
+        `📋 *Status:* ${os.status}\n`;
 
       if (os.observacoes) {
-        message += `*Observações:* ${os.observacoes}\n`;
+        message += `📝 *Observações:* ${os.observacoes}\n`;
       }
 
       if (os.status.toLowerCase() === 'agendamento' && os.data_agendamento) {
         const dataAgendamento = new Date(os.data_agendamento).toLocaleDateString('pt-BR');
         const horaAgendamento = new Date(os.data_agendamento).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        message += `*Agendado para:* ${dataAgendamento} às ${horaAgendamento}\n`;
+        message += `📅 *Agendado para:* ${dataAgendamento} às ${horaAgendamento}\n`;
       }
 
       if (os.servicos && os.servicos.length > 0) {
-        message += `\n*Serviços:*\n`;
+        message += `\n⚙️ *Serviços:*\n`;
         os.servicos.forEach(s => {
           const nomeServico = (s as any).servico?.nome || (s as any).nome || 'Serviço';
-          message += `- ${nomeServico}\n`;
+          message += `  • ${nomeServico}\n`;
         });
       }
 
       if (os.pecas && os.pecas.length > 0) {
-        message += `\n*Peças:*\n`;
+        message += `\n🔩 *Peças:*\n`;
         os.pecas.forEach(p => {
           const nomePeca = (p as any).peca?.nome || (p as any).nome || 'Peça';
-          message += `- ${nomePeca} (x${p.quantidade})\n`;
+          message += `  • ${nomePeca} (x${p.quantidade})\n`;
         });
       }
 
-      message += `\n*TOTAL: ${total}*\n`;
+      message += `\n💰 *TOTAL: ${total}*\n`;
 
       if (os.status === 'Pago' && os.forma_pagamento) {
-        message += `*Pagamento:* ${os.forma_pagamento}\n`;
+        message += `💳 *Pagamento:* ${os.forma_pagamento}\n`;
       }
 
-      message += `\n_Qualquer dúvida, entre em contato!_`;
+      message += `\n💬 _Qualquer dúvida, entre em contato!_`;
 
       const encodedMessage = encodeURIComponent(message);
       const url = `whatsapp://send?phone=55${telefone}&text=${encodedMessage}`;
