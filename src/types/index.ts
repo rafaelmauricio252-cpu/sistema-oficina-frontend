@@ -140,7 +140,13 @@ export interface DashboardStats {
     total_os: string;
     valor_total: number;
   }>;
-  pecas_estoque_baixo: number;
+  pecas_estoque_baixo: Array<{
+    id: number;
+    nome: string;
+    codigo: string;
+    quantidade_estoque: number;
+    estoque_minimo: number;
+  }>;
   os_agendadas: number;
   os_em_andamento: number;
   os_finalizadas: number;

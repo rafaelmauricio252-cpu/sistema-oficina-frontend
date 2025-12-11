@@ -391,11 +391,11 @@ export default function Dashboard() {
                 </TableHead>
                 <TableBody>
                   {stats.pecas_estoque_baixo.map((peca: any) => (
-                    <TableRow key={peca.numero_peca}>
+                    <TableRow key={peca.id}>
                       <TableCell>
                         <Typography variant="body2">{peca.nome}</Typography>
                         <Typography variant="caption" color="textSecondary">
-                          {peca.numero_peca}
+                          {peca.codigo}
                         </Typography>
                       </TableCell>
                       <TableCell align="right">

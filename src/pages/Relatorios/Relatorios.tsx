@@ -460,7 +460,7 @@ export default function Relatorios() {
                       })
                     }
                     format="dd/MM/yyyy"
-                    slotProps={{ textField: { fullWidth: true } }}
+                    slotProps={{ textField: { fullWidth: true, size: 'small' } }}
                   />
                 </Box>
                 <Box>
@@ -474,11 +474,11 @@ export default function Relatorios() {
                       })
                     }
                     format="dd/MM/yyyy"
-                    slotProps={{ textField: { fullWidth: true } }}
+                    slotProps={{ textField: { fullWidth: true, size: 'small' } }}
                   />
                 </Box>
                 <Box>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth size="small">
                     <InputLabel>Status</InputLabel>
                     <Select
                       value={relatorioOS.filtros.status}
@@ -501,6 +501,7 @@ export default function Relatorios() {
                 <Box>
                   <TextField
                     fullWidth
+                    size="small"
                     label="Busca"
                     placeholder="Cliente, placa, número..."
                     value={relatorioOS.filtros.busca}
