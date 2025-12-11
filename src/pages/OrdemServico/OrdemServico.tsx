@@ -188,8 +188,7 @@ export default function OrdemServico() {
 
       if (os.status.toLowerCase() === 'agendamento' && os.data_agendamento) {
         const dataAgendamento = new Date(os.data_agendamento).toLocaleDateString('pt-BR');
-        const horaAgendamento = new Date(os.data_agendamento).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        message += `📅 *Agendado para:* ${dataAgendamento} às ${horaAgendamento}\n`;
+        message += `📅 *Agendado para:* ${dataAgendamento}\n`;
       }
 
       if (os.servicos && os.servicos.length > 0) {
