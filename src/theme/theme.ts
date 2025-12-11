@@ -1,26 +1,26 @@
 import { createTheme, alpha } from '@mui/material/styles';
 
-// Enterprise Professional Palette
+// FC CENTRO AUTOMOTIVO - Palette baseada na logo
 const palette = {
     primary: {
-        main: '#0f172a', // Navy Blue (Slate 900)
-        light: '#334155', // Slate 700
-        dark: '#020617', // Slate 950
+        main: '#FF6B00', // Laranja principal da logo
+        light: '#FF8533', // Laranja claro (hover/estados ativos)
+        dark: '#CC5500', // Laranja escuro (pressed/darker states)
         contrastText: '#ffffff',
     },
     secondary: {
-        main: '#3b82f6', // Bright Blue (for accents)
-        light: '#60a5fa',
-        dark: '#2563eb',
+        main: '#2C2C2C', // Cinza escuro
+        light: '#424242',
+        dark: '#1a1a1a',
         contrastText: '#ffffff',
     },
     background: {
-        default: '#f1f5f9', // Slate 100
+        default: '#f5f5f5', // Cinza muito claro
         paper: '#ffffff',
     },
     text: {
-        primary: '#1e293b', // Slate 800
-        secondary: '#64748b', // Slate 500
+        primary: '#1a1a1a', // Preto suave
+        secondary: '#666666', // Cinza médio
     },
     success: {
         main: '#10b981',
@@ -35,10 +35,10 @@ const palette = {
         light: '#fef3c7',
     },
     info: {
-        main: '#3b82f6',
-        light: '#dbeafe',
+        main: '#FF6B00',
+        light: '#FFE5D5',
     },
-    divider: '#e2e8f0', // Slate 200
+    divider: 'rgba(255, 107, 0, 0.1)', // Laranja suave
 };
 
 export const theme = createTheme({
@@ -69,13 +69,13 @@ export const theme = createTheme({
                         height: '8px',
                     },
                     '&::-webkit-scrollbar-track': {
-                        backgroundColor: '#f1f5f9',
+                        backgroundColor: '#f5f5f5',
                     },
                     '&::-webkit-scrollbar-thumb': {
-                        backgroundColor: '#cbd5e1',
+                        backgroundColor: '#FF6B00',
                         borderRadius: '4px',
                         '&:hover': {
-                            backgroundColor: '#94a3b8',
+                            backgroundColor: '#FF8533',
                         },
                     },
                 },
@@ -113,7 +113,7 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid rgba(255, 107, 0, 0.15)',
                 },
             },
         },
@@ -121,31 +121,31 @@ export const theme = createTheme({
             styleOverrides: {
                 head: {
                     fontWeight: 600,
-                    backgroundColor: '#f8fafc',
-                    color: '#475569',
-                    borderBottom: '1px solid #e2e8f0',
+                    backgroundColor: '#FFF8F3',
+                    color: '#2C2C2C',
+                    borderBottom: '2px solid #FF6B00',
                 },
                 root: {
-                    borderBottom: '1px solid #f1f5f9',
+                    borderBottom: '1px solid #f5f5f5',
                 },
             },
         },
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#ffffff',
-                    color: '#0f172a',
-                    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-                    borderBottom: '1px solid #e2e8f0',
+                    backgroundColor: '#1a1a1a',
+                    color: '#ffffff',
+                    boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.3)',
+                    borderBottom: '2px solid #FF6B00',
                 },
             },
         },
         MuiDrawer: {
             styleOverrides: {
                 paper: {
-                    backgroundColor: '#0f172a', // Dark Sidebar
-                    color: '#f8fafc',
-                    borderRight: 'none',
+                    backgroundColor: '#1a1a1a', // Preto da logo
+                    color: '#ffffff',
+                    borderRight: '2px solid rgba(255, 107, 0, 0.3)',
                 },
             },
         },
@@ -155,17 +155,17 @@ export const theme = createTheme({
                     borderRadius: 8,
                     margin: '4px 8px',
                     '&.Mui-selected': {
-                        backgroundColor: alpha('#3b82f6', 0.15),
+                        backgroundColor: '#FF6B00',
                         color: '#ffffff',
                         '&:hover': {
-                            backgroundColor: alpha('#3b82f6', 0.25),
+                            backgroundColor: '#FF8533',
                         },
                         '& .MuiListItemIcon-root': {
-                            color: '#3b82f6', // Accent color for icon
+                            color: '#ffffff',
                         },
                     },
                     '&:hover': {
-                        backgroundColor: alpha('#ffffff', 0.05),
+                        backgroundColor: 'rgba(255, 107, 0, 0.1)',
                     },
                 },
             },
@@ -173,7 +173,7 @@ export const theme = createTheme({
         MuiListItemIcon: {
             styleOverrides: {
                 root: {
-                    color: '#94a3b8', // Muted icon color
+                    color: '#cccccc', // Cinza claro para ícones
                     minWidth: 40,
                 },
             },

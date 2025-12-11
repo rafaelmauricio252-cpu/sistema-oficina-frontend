@@ -106,18 +106,21 @@ export default function Layout() {
 
   const drawer = (
     <div>
-      <Toolbar sx={{ bgcolor: 'transparent', color: 'white', px: 2 }}>
-        <BuildIcon sx={{ mr: 2, color: 'primary.main' }} /> {/* Using primary color for logo accent if needed, or keep white */}
-        <Box>
-          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold', letterSpacing: 1 }}>
-            OFICINA PRO
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.7, letterSpacing: 2 }}>
-            ENTERPRISE
-          </Typography>
-        </Box>
+      <Toolbar sx={{ bgcolor: 'transparent', px: 2, justifyContent: 'center' }}>
+        <Box
+          component="img"
+          src="/assets/logo.jpg"
+          alt="Logo da Empresa"
+          sx={{
+            width: '250px',
+            height: '70px',
+            objectFit: 'cover',
+            borderRadius: 1,
+            my: 1
+          }}
+        />
       </Toolbar>
-      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+      <Divider sx={{ borderColor: 'rgba(255, 107, 0, 0.3)' }} />
       <List>
         {menuItems.map((item) => (
           <div key={item.text}>
@@ -127,18 +130,6 @@ export default function Layout() {
                 <ListItem disablePadding>
                   <ListItemButton
                     onClick={() => setFinanceiroOpen(!financeiroOpen)}
-                    sx={{
-                      '&.Mui-selected': {
-                        bgcolor: 'primary.light',
-                        color: 'white',
-                        '&:hover': {
-                          bgcolor: 'primary.main',
-                        },
-                        '& .MuiListItemIcon-root': {
-                          color: 'white',
-                        },
-                      },
-                    }}
                   >
                     <ListItemIcon>{item.icon}</ListItemIcon>
                     <ListItemText primary={item.text} />
@@ -152,25 +143,9 @@ export default function Layout() {
                         key={subItem.path}
                         selected={location.pathname === subItem.path}
                         onClick={() => handleMenuClick(subItem.path)}
-                        sx={{
-                          pl: 4,
-                          '&.Mui-selected': {
-                            bgcolor: 'primary.light',
-                            color: 'white',
-                            '&:hover': {
-                              bgcolor: 'primary.main',
-                            },
-                            '& .MuiListItemIcon-root': {
-                              color: 'white',
-                            },
-                          },
-                        }}
+                        sx={{ pl: 4 }}
                       >
-                        <ListItemIcon
-                          sx={{
-                            color: location.pathname === subItem.path ? 'white' : 'inherit',
-                          }}
-                        >
+                        <ListItemIcon>
                           {subItem.icon}
                         </ListItemIcon>
                         <ListItemText primary={subItem.text} />
@@ -185,24 +160,8 @@ export default function Layout() {
                 <ListItemButton
                   selected={location.pathname === item.path}
                   onClick={() => handleMenuClick(item.path!)}
-                  sx={{
-                    '&.Mui-selected': {
-                      bgcolor: 'primary.light',
-                      color: 'white',
-                      '&:hover': {
-                        bgcolor: 'primary.main',
-                      },
-                      '& .MuiListItemIcon-root': {
-                        color: 'white',
-                      },
-                    },
-                  }}
                 >
-                  <ListItemIcon
-                    sx={{
-                      color: location.pathname === item.path ? 'white' : 'inherit',
-                    }}
-                  >
+                  <ListItemIcon>
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText primary={item.text} />
@@ -222,8 +181,6 @@ export default function Layout() {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          bgcolor: 'background.paper',
-          color: 'text.primary',
         }}
         elevation={0}
       >
@@ -237,7 +194,7 @@ export default function Layout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'text.primary' }}>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Sistema de Gestão
           </Typography>
 

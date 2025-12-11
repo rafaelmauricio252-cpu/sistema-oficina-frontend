@@ -25,6 +25,8 @@ import {
   Snackbar,
   Tabs,
   Tab,
+  TablePagination,
+  Skeleton,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -34,6 +36,7 @@ import {
   Search as SearchIcon,
   Clear as ClearIcon,
   WhatsApp as WhatsAppIcon,
+  DescriptionOutlined as DescriptionOutlinedIcon,
 } from '@mui/icons-material';
 import type { OrdemServico as OrdemServicoType, OSFormData, Cliente, Veiculo, Mecanico, Servico, Peca } from '../../types';
 import ordemServicoService from '../../services/ordemServicoService';
@@ -59,6 +62,8 @@ export default function OrdemServico() {
   const [tabValue, setTabValue] = useState(0); // Estado para controlar a aba ativa
   const [highlightedOSId, setHighlightedOSId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // States para criação/edição de OS
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -119,6 +124,7 @@ export default function OrdemServico() {
       setError(null);
       const data = await ordemServicoService.search(searchQuery);
       setOrdens(data);
+      setPage(0);
     } catch (err: any) {
       setError(err.response?.data?.erro || 'Erro ao buscar ordens de serviço');
     } finally {
@@ -128,6 +134,7 @@ export default function OrdemServico() {
 
   const handleClearSearch = () => {
     setSearchQuery('');
+    setPage(0);
     loadOrdens();
   };
 
@@ -548,8 +555,58 @@ export default function OrdemServico() {
 
       <TableContainer component={Paper}>
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-            <CircularProgress />
+          <Box sx={{ p: 3 }}>
+            {[1, 2, 3, 4, 5].map((index) => (
+              <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                <Skeleton variant="rectangular" width={50} height={40} />
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="text" width="18%" height={40} />
+                <Skeleton variant="text" width="15%" height={40} />
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="rectangular" width={80} height={30} />
+                <Skeleton variant="text" width="10%" height={40} />
+                <Skeleton variant="rectangular" width={140} height={40} />
+              </Box>
+            ))}
+          </Box>
+        ) : ordensFiltradas.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <DescriptionOutlinedIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {searchQuery
+                ? 'Nenhuma ordem de serviço encontrada'
+                : statusFiltro
+                ? `Nenhuma ordem de serviço com status "${statusFiltro}"`
+                : 'Nenhuma ordem de serviço cadastrada ainda'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              {searchQuery
+                ? 'Tente ajustar os termos de busca ou limpar os filtros'
+                : statusFiltro
+                ? 'Tente selecionar outro status ou limpar os filtros'
+                : 'Comece criando sua primeira ordem de serviço'}
+            </Typography>
+            {searchQuery || statusFiltro ? (
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={() => {
+                  if (searchQuery) handleClearSearch();
+                  if (statusFiltro) limparFiltroStatus();
+                }}
+              >
+                Limpar Filtros
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleOpenCreateDialog}
+              >
+                Nova OS
+              </Button>
+            )}
           </Box>
         ) : (
           <Table>
@@ -567,14 +624,9 @@ export default function OrdemServico() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {ordensFiltradas.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    {statusFiltro ? `Nenhuma ordem de serviço com status "${statusFiltro}"` : 'Nenhuma ordem de serviço encontrada'}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                ordensFiltradas.map((os) => (
+              {ordensFiltradas
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((os) => (
                   <TableRow
                     key={os.id}
                     sx={{
@@ -607,7 +659,7 @@ export default function OrdemServico() {
                       </IconButton>
                       <IconButton
                         size="small"
-                        color="success" // Green color for WhatsApp
+                        color="success"
                         onClick={() => handleShareWhatsApp(os)}
                         title="Enviar no WhatsApp"
                       >
@@ -633,11 +685,24 @@ export default function OrdemServico() {
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                ))}
             </TableBody>
           </Table>
         )}
+        <TablePagination
+          component="div"
+          count={ordensFiltradas.length}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Linhas por página:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </TableContainer>
 
       {/* Dialog de Detalhes da OS */}

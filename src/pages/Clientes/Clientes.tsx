@@ -19,6 +19,8 @@ import {
   Alert,
   CircularProgress,
   Snackbar,
+  TablePagination,
+  Skeleton,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -26,6 +28,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
+  PersonOffOutlined as PersonOffOutlinedIcon,
 } from '@mui/icons-material';
 import type { Cliente, ClienteFormData } from '../../types';
 import clienteService from '../../services/clienteService';
@@ -40,6 +43,8 @@ export default function Clientes() {
   const [searchQuery, setSearchQuery] = useState('');
   const [clienteTemOS, setClienteTemOS] = useState(false);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [formData, setFormData] = useState<ClienteFormData>({
     nome: '',
     cpf_cnpj: '',
@@ -187,6 +192,7 @@ export default function Clientes() {
       setError(null);
       const data = await clienteService.search(searchQuery);
       setClientes(data);
+      setPage(0);
     } catch (err: any) {
       setError(err.response?.data?.erro || 'Erro ao buscar clientes');
     } finally {
@@ -196,6 +202,7 @@ export default function Clientes() {
 
   const handleClearSearch = () => {
     setSearchQuery('');
+    setPage(0);
     loadClientes();
   };
 
@@ -238,8 +245,46 @@ export default function Clientes() {
 
       <TableContainer component={Paper}>
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-            <CircularProgress />
+          <Box sx={{ p: 3 }}>
+            {[1, 2, 3, 4, 5].map((index) => (
+              <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                <Skeleton variant="rectangular" width={60} height={40} />
+                <Skeleton variant="text" width="25%" height={40} />
+                <Skeleton variant="text" width="20%" height={40} />
+                <Skeleton variant="text" width="15%" height={40} />
+                <Skeleton variant="text" width="20%" height={40} />
+                <Skeleton variant="rectangular" width={100} height={40} />
+              </Box>
+            ))}
+          </Box>
+        ) : clientes.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <PersonOffOutlinedIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {searchQuery ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado ainda'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              {searchQuery
+                ? 'Tente ajustar os termos de busca ou limpar os filtros'
+                : 'Comece adicionando seu primeiro cliente para gerenciar ordens de serviço'}
+            </Typography>
+            {searchQuery ? (
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={handleClearSearch}
+              >
+                Limpar Busca
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpenDialog()}
+              >
+                Novo Cliente
+              </Button>
+            )}
           </Box>
         ) : (
           <Table>
@@ -254,14 +299,9 @@ export default function Clientes() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {clientes.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    Nenhum cliente cadastrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                clientes.map((cliente) => (
+              {clientes
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((cliente) => (
                   <TableRow
                     key={cliente.id}
                     sx={{
@@ -292,11 +332,24 @@ export default function Clientes() {
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                ))}
             </TableBody>
           </Table>
         )}
+        <TablePagination
+          component="div"
+          count={clientes.length}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Linhas por página:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </TableContainer>
 
       {/* Dialog de Criar/Editar */}

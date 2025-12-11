@@ -23,6 +23,8 @@ import {
   InputAdornment,
   Autocomplete,
   Tooltip,
+  TablePagination,
+  Skeleton,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -35,10 +37,11 @@ import {
   TrendingDown as TrendingDownIcon,
   Check as CheckIcon,
   History as HistoryIcon,
+  InventoryOutlined as InventoryOutlinedIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
-import type { Peca, PecaFormData, Movimentacao } from '../../types';
+import type { Peca, PecaFormData, Movimentacao, Categoria } from '../../types';
 import pecaService from '../../services/pecaService';
 
 export default function Pecas() {
@@ -54,6 +57,8 @@ export default function Pecas() {
   const [pecaSelecionadaEntrada, setPecaSelecionadaEntrada] = useState<Peca | null>(null);
   const [quantidadeEntrada, setQuantidadeEntrada] = useState('');
   const [motivoEntrada, setMotivoEntrada] = useState('');
+  const [precoCustoEntrada, setPrecoCustoEntrada] = useState('');
+  const [precoVendaEntrada, setPrecoVendaEntrada] = useState('');
   const [loadingEntrada, setLoadingEntrada] = useState(false);
   const [highlightId, setHighlightId] = useState<number | null>(null);
   const [dialogSaidaAberto, setDialogSaidaAberto] = useState(false);
@@ -65,10 +70,17 @@ export default function Pecas() {
   const [pecaHistorico, setPecaHistorico] = useState<Peca | null>(null);
   const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>([]);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [dialogCategoriaOpen, setDialogCategoriaOpen] = useState(false);
+  const [novaCategoria, setNovaCategoria] = useState({ nome: '', descricao: '' });
+  const [loadingCategoria, setLoadingCategoria] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [formData, setFormData] = useState<PecaFormData>({
     nome: '',
     numero_peca: '',
     descricao: '',
+    categoria_id: undefined,
     preco_custo: 0,
     preco_venda: 0,
     quantidade_estoque: 0,
@@ -86,7 +98,17 @@ export default function Pecas() {
 
   useEffect(() => {
     loadPecas();
+    loadCategorias();
   }, []);
+
+  const loadCategorias = async () => {
+    try {
+      const data = await pecaService.getCategorias();
+      setCategorias(data);
+    } catch (err) {
+      console.error('Erro ao carregar categorias:', err);
+    }
+  };
 
   const loadPecas = async () => {
     try {
@@ -112,6 +134,7 @@ export default function Pecas() {
       setError(null);
       const data = await pecaService.search(searchQuery);
       setPecas(data);
+      setPage(0);
     } catch (err: any) {
       setError(err.response?.data?.erro || 'Erro ao buscar peças');
     } finally {
@@ -121,6 +144,7 @@ export default function Pecas() {
 
   const handleClearSearch = () => {
     setSearchQuery('');
+    setPage(0);
     loadPecas();
   };
 
@@ -131,6 +155,7 @@ export default function Pecas() {
         nome: peca.nome,
         numero_peca: peca.numero_peca,
         descricao: peca.descricao || '',
+        categoria_id: peca.categoria_id || undefined,
         preco_custo: peca.preco_custo,
         preco_venda: peca.preco_venda,
         quantidade_estoque: peca.quantidade_estoque,
@@ -143,6 +168,7 @@ export default function Pecas() {
         nome: '',
         numero_peca: '',
         descricao: '',
+        categoria_id: undefined,
         preco_custo: 0,
         preco_venda: 0,
         quantidade_estoque: 0,
@@ -222,6 +248,33 @@ export default function Pecas() {
     setMovimentacoes([]);
   };
 
+  const handleCriarCategoria = async () => {
+    if (!novaCategoria.nome.trim()) {
+      setError('Nome da categoria é obrigatório');
+      return;
+    }
+
+    try {
+      setLoadingCategoria(true);
+      const categoriaCriada = await pecaService.criarCategoria(novaCategoria);
+
+      // Atualizar lista de categorias
+      await loadCategorias();
+
+      // Selecionar a categoria recém-criada
+      setFormData({ ...formData, categoria_id: categoriaCriada.id });
+
+      // Fechar dialog e limpar form
+      setDialogCategoriaOpen(false);
+      setNovaCategoria({ nome: '', descricao: '' });
+      setSuccess('Categoria criada com sucesso!');
+    } catch (err: any) {
+      setError(err.response?.data?.erro || 'Erro ao criar categoria');
+    } finally {
+      setLoadingCategoria(false);
+    }
+  };
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -279,8 +332,48 @@ export default function Pecas() {
 
       <TableContainer component={Paper}>
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-            <CircularProgress />
+          <Box sx={{ p: 3 }}>
+            {[1, 2, 3, 4, 5].map((index) => (
+              <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="text" width="20%" height={40} />
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="rectangular" width={80} height={30} />
+                <Skeleton variant="text" width="10%" height={40} />
+                <Skeleton variant="text" width="12%" height={40} />
+                <Skeleton variant="rectangular" width={120} height={40} />
+              </Box>
+            ))}
+          </Box>
+        ) : pecas.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <InventoryOutlinedIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {searchQuery ? 'Nenhuma peça encontrada' : 'Nenhuma peça cadastrada ainda'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              {searchQuery
+                ? 'Tente ajustar os termos de busca ou limpar os filtros'
+                : 'Comece adicionando peças ao estoque para gerenciar suas ordens de serviço'}
+            </Typography>
+            {searchQuery ? (
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={handleClearSearch}
+              >
+                Limpar Busca
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpenDialog()}
+              >
+                Nova Peça
+              </Button>
+            )}
           </Box>
         ) : (
           <Table>
@@ -297,12 +390,9 @@ export default function Pecas() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {pecas.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center">Nenhuma peça cadastrada</TableCell>
-                </TableRow>
-              ) : (
-                pecas.map((peca) => (
+              {pecas
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((peca) => (
                   <TableRow
                     key={peca.id}
                     sx={{
@@ -346,11 +436,24 @@ export default function Pecas() {
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                ))}
             </TableBody>
           </Table>
         )}
+        <TablePagination
+          component="div"
+          count={pecas.length}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Linhas por página:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </TableContainer>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
@@ -371,6 +474,33 @@ export default function Pecas() {
               required
               fullWidth
             />
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+              <Autocomplete
+                options={categorias}
+                getOptionLabel={(option) => option.nome}
+                value={categorias.find(c => c.id === formData.categoria_id) || null}
+                onChange={(_, newValue) => {
+                  setFormData({ ...formData, categoria_id: newValue?.id || undefined });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Categoria"
+                    placeholder="Selecione uma categoria"
+                  />
+                )}
+                sx={{ flex: 1 }}
+              />
+              <Tooltip title="Nova Categoria">
+                <IconButton
+                  color="primary"
+                  onClick={() => setDialogCategoriaOpen(true)}
+                  sx={{ mt: 1 }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 label="Descrição"
@@ -597,6 +727,8 @@ export default function Pecas() {
             setPecaSelecionadaEntrada(null);
             setQuantidadeEntrada('');
             setMotivoEntrada('');
+            setPrecoCustoEntrada('');
+            setPrecoVendaEntrada('');
           }
         }}
         maxWidth="sm"
@@ -620,7 +752,16 @@ export default function Pecas() {
                 />
               )}
               value={pecaSelecionadaEntrada}
-              onChange={(_e, newValue) => setPecaSelecionadaEntrada(newValue)}
+              onChange={(_e, newValue) => {
+                setPecaSelecionadaEntrada(newValue);
+                if (newValue) {
+                  setPrecoCustoEntrada(newValue.preco_custo.toString());
+                  setPrecoVendaEntrada(newValue.preco_venda.toString());
+                } else {
+                  setPrecoCustoEntrada('');
+                  setPrecoVendaEntrada('');
+                }
+              }}
               noOptionsText="Nenhuma peça encontrada"
             />
 
@@ -632,6 +773,40 @@ export default function Pecas() {
               required
               inputProps={{ min: 1 }}
               helperText="Quantidade de unidades recebidas"
+            />
+
+            <TextField
+              label="Preço de Custo"
+              type="number"
+              value={precoCustoEntrada}
+              onChange={(e) => setPrecoCustoEntrada(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+              }}
+              inputProps={{ min: 0, step: 0.01 }}
+              helperText="Deixe em branco para manter o preço atual"
+              sx={{
+                '& input[type=number]': { '-moz-appearance': 'textfield' },
+                '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
+                '& input[type=number]::-webkit-inner-spin-button': { '-webkit-appearance': 'none', margin: 0 }
+              }}
+            />
+
+            <TextField
+              label="Preço de Venda"
+              type="number"
+              value={precoVendaEntrada}
+              onChange={(e) => setPrecoVendaEntrada(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+              }}
+              inputProps={{ min: 0, step: 0.01 }}
+              helperText="Deixe em branco para manter o preço atual"
+              sx={{
+                '& input[type=number]': { '-moz-appearance': 'textfield' },
+                '& input[type=number]::-webkit-outer-spin-button': { '-webkit-appearance': 'none', margin: 0 },
+                '& input[type=number]::-webkit-inner-spin-button': { '-webkit-appearance': 'none', margin: 0 }
+              }}
             />
 
             <TextField
@@ -653,6 +828,8 @@ export default function Pecas() {
             setPecaSelecionadaEntrada(null);
             setQuantidadeEntrada('');
             setMotivoEntrada('');
+            setPrecoCustoEntrada('');
+            setPrecoVendaEntrada('');
           }} disabled={loadingEntrada}>
             Cancelar
           </Button>
@@ -660,11 +837,22 @@ export default function Pecas() {
             onClick={async () => {
               setLoadingEntrada(true);
               try {
-                const resultado = await pecaService.darEntrada({
+                // Preparar dados da entrada
+                const dadosEntrada: any = {
                   peca_id: pecaSelecionadaEntrada!.id,
                   quantidade: parseInt(quantidadeEntrada),
                   motivo: motivoEntrada.trim()
-                });
+                };
+
+                // Adicionar preços apenas se foram modificados
+                if (precoCustoEntrada && precoCustoEntrada !== pecaSelecionadaEntrada!.preco_custo.toString()) {
+                  dadosEntrada.preco_custo = parseFloat(precoCustoEntrada);
+                }
+                if (precoVendaEntrada && precoVendaEntrada !== pecaSelecionadaEntrada!.preco_venda.toString()) {
+                  dadosEntrada.preco_venda = parseFloat(precoVendaEntrada);
+                }
+
+                const resultado = await pecaService.darEntrada(dadosEntrada);
 
                 setSuccess(resultado.mensagem || 'Entrada registrada com sucesso!');
 
@@ -672,6 +860,8 @@ export default function Pecas() {
                 setPecaSelecionadaEntrada(null);
                 setQuantidadeEntrada('');
                 setMotivoEntrada('');
+                setPrecoCustoEntrada('');
+                setPrecoVendaEntrada('');
 
                 await loadPecas();
                 setHighlightId(pecaSelecionadaEntrada!.id);
@@ -690,6 +880,8 @@ export default function Pecas() {
               !quantidadeEntrada ||
               parseInt(quantidadeEntrada) <= 0 ||
               motivoEntrada.trim().length < 10 ||
+              (precoCustoEntrada && parseFloat(precoCustoEntrada) <= 0) ||
+              (precoVendaEntrada && parseFloat(precoVendaEntrada) <= 0) ||
               loadingEntrada
             }
             startIcon={loadingEntrada ? <CircularProgress size={20} /> : <CheckIcon />}
@@ -848,6 +1040,56 @@ export default function Pecas() {
             startIcon={loadingSaida ? <CircularProgress size={20} /> : <CheckIcon />}
           >
             {loadingSaida ? 'Processando...' : 'Confirmar Saída'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog de Nova Categoria */}
+      <Dialog
+        open={dialogCategoriaOpen}
+        onClose={() => {
+          setDialogCategoriaOpen(false);
+          setNovaCategoria({ nome: '', descricao: '' });
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Nova Categoria</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label="Nome da Categoria"
+              value={novaCategoria.nome}
+              onChange={(e) => setNovaCategoria({ ...novaCategoria, nome: e.target.value })}
+              required
+              fullWidth
+              autoFocus
+            />
+            <TextField
+              label="Descrição"
+              value={novaCategoria.descricao}
+              onChange={(e) => setNovaCategoria({ ...novaCategoria, descricao: e.target.value })}
+              multiline
+              rows={3}
+              fullWidth
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setDialogCategoriaOpen(false);
+              setNovaCategoria({ nome: '', descricao: '' });
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleCriarCategoria}
+            disabled={loadingCategoria || !novaCategoria.nome.trim()}
+          >
+            {loadingCategoria ? 'Salvando...' : 'Salvar'}
           </Button>
         </DialogActions>
       </Dialog>

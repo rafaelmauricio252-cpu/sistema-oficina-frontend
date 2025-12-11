@@ -18,6 +18,7 @@ import {
   CircularProgress,
   Card,
   CardContent,
+  TablePagination,
 } from '@mui/material';
 import type { ReceitasResponse } from '../../types';
 import financeiroService from '../../services/financeiroService';
@@ -45,6 +46,8 @@ export default function FinanceiroReceitas() {
   const [periodo, setPeriodo] = useState('mes_atual');
   const [formaPagamento, setFormaPagamento] = useState('todas');
   const [busca, setBusca] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     carregarDados();
@@ -62,6 +65,7 @@ export default function FinanceiroReceitas() {
 
       const data = await financeiroService.getReceitas(filtros);
       setDados(data);
+      setPage(0);
     } catch (error: any) {
       console.error('Erro ao carregar receitas:', error);
       setErro('Erro ao carregar receitas. Tente novamente.');
@@ -226,31 +230,47 @@ export default function FinanceiroReceitas() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    dados.receitas.map((receita) => (
-                      <TableRow key={receita.id} hover>
-                        <TableCell>#{receita.id}</TableCell>
-                        <TableCell>{receita.cliente_nome}</TableCell>
-                        <TableCell>
-                          {receita.veiculo_placa}
-                          <Typography variant="caption" display="block" color="textSecondary">
-                            {receita.veiculo_modelo}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>{receita.mecanico_nome || 'Não informado'}</TableCell>
-                        <TableCell>{formatarData(receita.data_conclusao)}</TableCell>
-                        <TableCell>{receita.forma_pagamento}</TableCell>
-                        <TableCell align="right" sx={{ color: 'error.main' }}>
-                          {receita.desconto > 0 ? formatarMoeda(receita.desconto) : '-'}
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                          {formatarMoeda(receita.valor_total)}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    dados.receitas
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((receita) => (
+                        <TableRow key={receita.id} hover>
+                          <TableCell>#{receita.id}</TableCell>
+                          <TableCell>{receita.cliente_nome}</TableCell>
+                          <TableCell>
+                            {receita.veiculo_placa}
+                            <Typography variant="caption" display="block" color="textSecondary">
+                              {receita.veiculo_modelo}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>{receita.mecanico_nome || 'Não informado'}</TableCell>
+                          <TableCell>{formatarData(receita.data_conclusao)}</TableCell>
+                          <TableCell>{receita.forma_pagamento}</TableCell>
+                          <TableCell align="right" sx={{ color: 'error.main' }}>
+                            {receita.desconto > 0 ? formatarMoeda(receita.desconto) : '-'}
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                            {formatarMoeda(receita.valor_total)}
+                          </TableCell>
+                        </TableRow>
+                      ))
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
+            <TablePagination
+              component="div"
+              count={dados.receitas.length}
+              page={page}
+              onPageChange={(e, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Linhas por página:"
+              labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
           </Paper>
         </>
       )}

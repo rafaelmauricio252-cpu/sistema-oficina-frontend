@@ -220,6 +220,12 @@ export interface ServicoFormData {
   ativo: boolean;
 }
 
+export interface Categoria {
+  id: number;
+  nome: string;
+  descricao?: string;
+}
+
 export interface PecaFormData {
   nome: string;
   numero_peca: string;

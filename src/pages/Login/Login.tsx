@@ -52,13 +52,25 @@ const Login: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #2C2C2C 50%, #FF6B00 100%)',
         padding: 2,
       }}
     >
       <Card sx={{ maxWidth: 400, width: '100%' }}>
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box
+              component="img"
+              src="/assets/logo.jpg"
+              alt="Logo da Empresa"
+              sx={{
+                width: '320px',
+                height: '85px',
+                objectFit: 'cover',
+                mb: 2,
+                borderRadius: 1
+              }}
+            />
             <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
               Sistema Oficina
             </Typography>

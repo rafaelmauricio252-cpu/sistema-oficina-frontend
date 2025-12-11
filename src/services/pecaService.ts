@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Peca, PecaFormData, ApiResponse } from '../types';
+import type { Peca, PecaFormData, ApiResponse, Categoria } from '../types';
 
 export const pecaService = {
   async getAll(): Promise<Peca[]> {
@@ -34,7 +34,7 @@ export const pecaService = {
     return response.data.pecas;
   },
 
-  async darEntrada(dados: { peca_id: number; quantidade: number; motivo: string }) {
+  async darEntrada(dados: { peca_id: number; quantidade: number; motivo: string; preco_custo?: number; preco_venda?: number }) {
     const response = await api.post('/pecas/entrada', dados);
     return response.data;
   },
@@ -47,6 +47,16 @@ export const pecaService = {
   async buscarHistorico(peca_id: number) {
     const response = await api.get(`/pecas/${peca_id}/historico`);
     return response.data;
+  },
+
+  async getCategorias(): Promise<Categoria[]> {
+    const response = await api.get<{ categorias: Categoria[] }>('/categorias');
+    return response.data.categorias;
+  },
+
+  async criarCategoria(data: { nome: string; descricao?: string }): Promise<Categoria> {
+    const response = await api.post<{ categoria: Categoria }>('/categorias', data);
+    return response.data.categoria;
   }
 };
 

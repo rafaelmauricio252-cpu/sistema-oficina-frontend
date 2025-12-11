@@ -14,6 +14,7 @@ import {
   TableRow,
   Alert,
   CircularProgress,
+  Skeleton,
 } from '@mui/material';
 import {
   People as PeopleIcon,
@@ -109,8 +110,80 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
+      <Box>
+        <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
+          Dashboard
+        </Typography>
+
+        {/* Skeleton para OS por Status */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          {[1, 2, 3, 4].map((index) => (
+            <Card key={index} elevation={3}>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton variant="text" width="60%" height={32} />
+                    <Skeleton variant="text" width="80%" height={20} />
+                  </Box>
+                  <Skeleton variant="circular" width={56} height={56} />
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+
+        {/* Skeleton para Cards de Estatísticas */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+            gap: 3,
+            mb: 4,
+          }}
+        >
+          {[1, 2, 3, 4].map((index) => (
+            <Card key={index} elevation={3}>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton variant="text" width="60%" height={32} />
+                    <Skeleton variant="text" width="80%" height={20} />
+                  </Box>
+                  <Skeleton variant="circular" width={56} height={56} />
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+
+        {/* Skeleton para Tabelas */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+            gap: 3,
+            mb: 4,
+          }}
+        >
+          {[1, 2].map((index) => (
+            <Paper key={index} elevation={3} sx={{ p: 3 }}>
+              <Skeleton variant="text" width="60%" height={32} sx={{ mb: 2 }} />
+              {[1, 2, 3, 4, 5].map((row) => (
+                <Box key={row} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Skeleton variant="text" width="60%" height={24} />
+                  <Skeleton variant="text" width="20%" height={24} />
+                </Box>
+              ))}
+            </Paper>
+          ))}
+        </Box>
       </Box>
     );
   }
@@ -141,7 +214,7 @@ export default function Dashboard() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
           gap: 2,
           mb: 3,
         }}
