@@ -217,9 +217,9 @@ export default function OrdemServico() {
       message += `\n_Qualquer dúvida, entre em contato!_`;
 
       const encodedMessage = encodeURIComponent(message);
-      const url = `https://wa.me/55${telefone}?text=${encodedMessage}`;
+      const url = `whatsapp://send?phone=55${telefone}&text=${encodedMessage}`;
 
-      window.open(url, 'whatsapp_oficina');
+      window.location.href = url;
     } catch (error) {
       console.error('Erro ao gerar mensagem WhatsApp:', error);
       setError('Erro ao abrir WhatsApp. Verifique os dados da OS.');
