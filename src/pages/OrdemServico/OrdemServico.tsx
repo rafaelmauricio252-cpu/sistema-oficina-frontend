@@ -219,7 +219,7 @@ export default function OrdemServico() {
       const encodedMessage = encodeURIComponent(message);
       const url = `https://wa.me/55${telefone}?text=${encodedMessage}`;
 
-      window.location.href = url;
+      window.open(url, '_blank');
     } catch (error) {
       console.error('Erro ao gerar mensagem WhatsApp:', error);
       setError('Erro ao abrir WhatsApp. Verifique os dados da OS.');
