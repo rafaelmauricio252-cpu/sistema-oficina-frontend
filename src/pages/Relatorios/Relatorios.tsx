@@ -626,7 +626,7 @@ export default function Relatorios() {
                       })
                     }
                     format="dd/MM/yyyy"
-                    slotProps={{ textField: { fullWidth: true } }}
+                    slotProps={{ textField: { fullWidth: true, size: 'small' } }}
                   />
                 </Box>
                 <Box>
@@ -640,12 +640,13 @@ export default function Relatorios() {
                       })
                     }
                     format="dd/MM/yyyy"
-                    slotProps={{ textField: { fullWidth: true } }}
+                    slotProps={{ textField: { fullWidth: true, size: 'small' } }}
                   />
                 </Box>
                 <Box>
                   <TextField
                     fullWidth
+                    size="small"
                     label="Busca"
                     placeholder="Cliente, número..."
                     value={relatorioFinanceiro.filtros.busca}
@@ -826,7 +827,7 @@ export default function Relatorios() {
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
                 <Box>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth size="small">
                     <InputLabel>Categoria</InputLabel>
                     <Select
                       value={relatorioEstoque.filtros.categoria}
@@ -846,6 +847,7 @@ export default function Relatorios() {
                 <Box>
                   <TextField
                     fullWidth
+                    size="small"
                     label="Busca"
                     placeholder="Código, nome..."
                     value={relatorioEstoque.filtros.busca}
