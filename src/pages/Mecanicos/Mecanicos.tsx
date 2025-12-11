@@ -65,7 +65,7 @@ export default function Mecanicos() {
       setError(null);
       const data = await mecanicoService.getAll();
       setMecanicos(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.erro || 'Erro ao carregar mecânicos');
     } finally {
       setLoading(false);
@@ -83,7 +83,7 @@ export default function Mecanicos() {
       setError(null);
       const data = await mecanicoService.search(searchQuery);
       setMecanicos(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.erro || 'Erro ao buscar mecânicos');
     } finally {
       setLoading(false);

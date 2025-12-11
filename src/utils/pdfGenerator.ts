@@ -10,9 +10,40 @@ interface ColunaTabela {
   dataKey: string;
 }
 
-interface DadosRelatorio {
-  dados: any[];
-  totalizadores?: any;
+interface TotalizadoresOS {
+  total_registros: number;
+  total_valor_servicos: number;
+  total_valor_pecas: number;
+  total_valor_final: number;
+}
+
+interface TotalizadoresEstoque {
+  total_itens: number;
+  valor_total_custo: number;
+  valor_total_venda: number;
+}
+
+interface DadosRelatorioOS {
+  dados: Record<string, string | number>[];
+  totalizadores?: TotalizadoresOS;
+}
+
+interface DadosRelatorioEstoque {
+  dados: Record<string, string | number>[];
+  totalizadores?: TotalizadoresEstoque;
+}
+
+interface FiltrosOS {
+  data_inicio?: string;
+  data_fim?: string;
+  status?: string;
+  busca?: string;
+}
+
+interface FiltrosEstoque {
+  categoria?: string;
+  busca?: string;
+  estoque_baixo?: boolean;
 }
 
 /**
@@ -28,7 +59,7 @@ function formatarMoeda(valor: number): string {
 /**
  * Formata data para exibição (formato brasileiro: dd/mm/yyyy)
  */
-function formatarData(data: any): string {
+function formatarData(data: string | Date | number): string {
   if (!data) return '-';
 
   // Converter para string se necessário
@@ -86,7 +117,7 @@ function gerarCabecalho(doc: jsPDF, titulo: string) {
     doc.setFont('helvetica', 'normal');
     doc.text('FC CENTRO AUTOMOTIVO', 105, 12, { align: 'center' });
     doc.text('OFICINA MECÂNICA', 105, 18, { align: 'center' });
-  } catch (e) {
+  } catch {
     // Se não conseguir carregar a logo, continua sem ela
   }
 
@@ -169,7 +200,7 @@ const labelsEstoque: Record<string, string> = {
 /**
  * Gera PDF de Relatório de OS
  */
-export function gerarPDFRelatorioOS(campos: string[], dados: DadosRelatorio, filtros: any) {
+export function gerarPDFRelatorioOS(campos: string[], dados: DadosRelatorioOS, filtros: FiltrosOS) {
   const doc = new jsPDF();
   const startY = gerarCabecalho(doc, 'Relatório de Ordens de Serviço');
 
@@ -202,14 +233,14 @@ export function gerarPDFRelatorioOS(campos: string[], dados: DadosRelatorio, fil
 
   // Preparar dados (formatar valores)
   const dadosFormatados = dados.dados.map(item => {
-    const itemFormatado: any = {};
+    const itemFormatado: Record<string, string> = {};
     campos.forEach(campo => {
       if (campo.includes('valor_') || campo.includes('preco_')) {
-        itemFormatado[campo] = formatarMoeda(item[campo] || 0);
+        itemFormatado[campo] = formatarMoeda(Number(item[campo]) || 0);
       } else if (campo.includes('data_')) {
-        itemFormatado[campo] = formatarData(item[campo]);
+        itemFormatado[campo] = formatarData(item[campo] as string | Date);
       } else {
-        itemFormatado[campo] = item[campo] || '-';
+        itemFormatado[campo] = String(item[campo] || '-');
       }
     });
     return itemFormatado;
@@ -228,7 +259,7 @@ export function gerarPDFRelatorioOS(campos: string[], dados: DadosRelatorio, fil
 
   // Totalizadores
   if (dados.totalizadores) {
-    const finalY = (doc as any).lastAutoTable.finalY || filterY + 10;
+    const finalY = (doc as typeof doc & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY || filterY + 10;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Totalizadores:', 14, finalY + 10);
@@ -247,7 +278,7 @@ export function gerarPDFRelatorioOS(campos: string[], dados: DadosRelatorio, fil
 /**
  * Gera PDF de Relatório Financeiro
  */
-export function gerarPDFRelatorioFinanceiro(campos: string[], dados: DadosRelatorio, filtros: any) {
+export function gerarPDFRelatorioFinanceiro(campos: string[], dados: DadosRelatorioOS, filtros: FiltrosOS) {
   const doc = new jsPDF();
   const startY = gerarCabecalho(doc, 'Relatório Financeiro');
 
@@ -276,14 +307,14 @@ export function gerarPDFRelatorioFinanceiro(campos: string[], dados: DadosRelato
 
   // Preparar dados
   const dadosFormatados = dados.dados.map(item => {
-    const itemFormatado: any = {};
+    const itemFormatado: Record<string, string> = {};
     campos.forEach(campo => {
       if (campo.includes('valor_') || campo.includes('preco_')) {
-        itemFormatado[campo] = formatarMoeda(item[campo] || 0);
+        itemFormatado[campo] = formatarMoeda(Number(item[campo]) || 0);
       } else if (campo.includes('data_')) {
-        itemFormatado[campo] = formatarData(item[campo]);
+        itemFormatado[campo] = formatarData(item[campo] as string | Date);
       } else {
-        itemFormatado[campo] = item[campo] || '-';
+        itemFormatado[campo] = String(item[campo] || '-');
       }
     });
     return itemFormatado;
@@ -302,7 +333,7 @@ export function gerarPDFRelatorioFinanceiro(campos: string[], dados: DadosRelato
 
   // Totalizadores
   if (dados.totalizadores) {
-    const finalY = (doc as any).lastAutoTable.finalY || filterY + 10;
+    const finalY = (doc as typeof doc & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY || filterY + 10;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Totalizadores:', 14, finalY + 10);
@@ -324,7 +355,7 @@ export function gerarPDFRelatorioFinanceiro(campos: string[], dados: DadosRelato
 /**
  * Gera PDF de Relatório de Estoque
  */
-export function gerarPDFRelatorioEstoque(campos: string[], dados: DadosRelatorio, filtros: any) {
+export function gerarPDFRelatorioEstoque(campos: string[], dados: DadosRelatorioEstoque, filtros: FiltrosEstoque) {
   const doc = new jsPDF();
   const startY = gerarCabecalho(doc, 'Relatório de Estoque');
 
@@ -357,14 +388,14 @@ export function gerarPDFRelatorioEstoque(campos: string[], dados: DadosRelatorio
 
   // Preparar dados
   const dadosFormatados = dados.dados.map(item => {
-    const itemFormatado: any = {};
+    const itemFormatado: Record<string, string> = {};
     campos.forEach(campo => {
       if (campo.includes('valor_') || campo.includes('preco_')) {
-        itemFormatado[campo] = formatarMoeda(item[campo] || 0);
+        itemFormatado[campo] = formatarMoeda(Number(item[campo]) || 0);
       } else if (campo === 'margem_lucro') {
-        itemFormatado[campo] = item[campo] ? `${item[campo].toFixed(2)}%` : '-';
+        itemFormatado[campo] = item[campo] ? `${Number(item[campo]).toFixed(2)}%` : '-';
       } else {
-        itemFormatado[campo] = item[campo] || '-';
+        itemFormatado[campo] = String(item[campo] || '-');
       }
     });
     return itemFormatado;
@@ -383,7 +414,7 @@ export function gerarPDFRelatorioEstoque(campos: string[], dados: DadosRelatorio
 
   // Totalizadores
   if (dados.totalizadores) {
-    const finalY = (doc as any).lastAutoTable.finalY || filterY + 10;
+    const finalY = (doc as typeof doc & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY || filterY + 10;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Totalizadores:', 14, finalY + 10);

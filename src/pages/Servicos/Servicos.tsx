@@ -69,8 +69,8 @@ export default function Servicos() {
       setError(null);
       const data = await servicoService.getAll();
       setServicos(data);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao carregar serviços');
+    } catch (err: unknown) {
+      setError((err as any).response?.data?.erro || 'Erro ao carregar serviços');
     } finally {
       setLoading(false);
     }
@@ -87,8 +87,8 @@ export default function Servicos() {
       setError(null);
       const data = await servicoService.search(searchQuery);
       setServicos(data);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao buscar serviços');
+    } catch (err: unknown) {
+      setError((err as any).response?.data?.erro || 'Erro ao buscar serviços');
     } finally {
       setLoading(false);
     }

@@ -104,8 +104,9 @@ export default function OrdemServico() {
       setError(null);
       const data = await ordemServicoService.getAll();
       setOrdens(data);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao carregar ordens de serviço');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } } };
+      setError(error.response?.data?.erro || 'Erro ao carregar ordens de serviço');
     } finally {
       setLoading(false);
     }
@@ -124,8 +125,9 @@ export default function OrdemServico() {
       const data = await ordemServicoService.search(searchQuery);
       setOrdens(data);
       setPage(0);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao buscar ordens de serviço');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } } };
+      setError(error.response?.data?.erro || 'Erro ao buscar ordens de serviço');
     } finally {
       setLoading(false);
     }
@@ -151,7 +153,7 @@ export default function OrdemServico() {
       setMecanicos(mecanicosData);
       setServicos(servicosData);
       setPecas(pecasData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao carregar dados do formulário:', err);
     }
   };
@@ -194,7 +196,7 @@ export default function OrdemServico() {
       if (os.servicos && os.servicos.length > 0) {
         message += `\n⚙️ *Serviços:*\n`;
         os.servicos.forEach(s => {
-          const nomeServico = (s as any).servico?.nome || (s as any).nome || 'Serviço';
+          const nomeServico = s.servico?.nome || 'Serviço';
           message += `  • ${nomeServico}\n`;
         });
       }
@@ -202,7 +204,7 @@ export default function OrdemServico() {
       if (os.pecas && os.pecas.length > 0) {
         message += `\n🔩 *Peças:*\n`;
         os.pecas.forEach(p => {
-          const nomePeca = (p as any).peca?.nome || (p as any).nome || 'Peça';
+          const nomePeca = p.peca?.nome || 'Peça';
           message += `  • ${nomePeca} (x${p.quantidade})\n`;
         });
       }
@@ -233,8 +235,9 @@ export default function OrdemServico() {
       const osCompleta = await ordemServicoService.getById(os.id);
       setSelectedOS(osCompleta);
       setDialogOpen(true);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao carregar detalhes da ordem de serviço');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } } };
+      setError(error.response?.data?.erro || 'Erro ao carregar detalhes da ordem de serviço');
     } finally {
       setLoading(false);
     }
@@ -281,8 +284,9 @@ export default function OrdemServico() {
         })) || [],
       });
       setCreateDialogOpen(true);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao carregar ordem de serviço');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } } };
+      setError(error.response?.data?.erro || 'Erro ao carregar ordem de serviço');
     }
   };
 
@@ -302,7 +306,7 @@ export default function OrdemServico() {
     setFormData({ ...formData, servicos: newServicos });
   };
 
-  const handleUpdateServico = (index: number, field: string, value: any) => {
+  const handleUpdateServico = (index: number, field: string, value: number) => {
     const newServicos = [...(formData.servicos || [])];
     newServicos[index] = { ...newServicos[index], [field]: value };
     setFormData({ ...formData, servicos: newServicos });
@@ -324,7 +328,7 @@ export default function OrdemServico() {
     setFormData({ ...formData, pecas: newPecas });
   };
 
-  const handleUpdatePeca = (index: number, field: string, value: any) => {
+  const handleUpdatePeca = (index: number, field: string, value: number) => {
     const newPecas = [...(formData.pecas || [])];
     newPecas[index] = { ...newPecas[index], [field]: value };
     setFormData({ ...formData, pecas: newPecas });
@@ -341,8 +345,9 @@ export default function OrdemServico() {
       setFormData({ ...formData, cliente_id: response.cliente.id }); // Auto-select new cliente
       setClienteDialogOpen(false);
       setNewClienteData({ nome: '', cpf_cnpj: '', telefone: '', email: '' }); // Reset form
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao criar cliente');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } } };
+      setError(error.response?.data?.erro || 'Erro ao criar cliente');
     }
   };
 
@@ -362,8 +367,9 @@ export default function OrdemServico() {
       setFormData({ ...formData, veiculo_id: response.veiculo.id }); // Auto-select new veiculo
       setVeiculoDialogOpen(false);
       setNewVeiculoData({ placa: '', marca: '', modelo: '', ano: '', cor: '' }); // Reset form
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao criar veículo');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } } };
+      setError(error.response?.data?.erro || 'Erro ao criar veículo');
     }
   };
 
@@ -425,8 +431,9 @@ export default function OrdemServico() {
           setHighlightedOSId(null);
         }, 2000);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.erro || err.message || `Erro ao ${isEditing ? 'editar' : 'criar'} ordem de serviço`);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { erro?: string } }; message?: string };
+      setError(error.response?.data?.erro || error.message || `Erro ao ${isEditing ? 'editar' : 'criar'} ordem de serviço`);
     }
   };
 
@@ -480,8 +487,9 @@ export default function OrdemServico() {
         await ordemServicoService.delete(os.id);
         setOrdens(ordens.filter(o => o.id !== os.id));
         setSuccess('Ordem de serviço excluída com sucesso');
-      } catch (err: any) {
-        setError(err.response?.data?.erro || 'Erro ao excluir ordem de serviço');
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { erro?: string } } };
+        setError(error.response?.data?.erro || 'Erro ao excluir ordem de serviço');
       }
     }
   };

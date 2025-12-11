@@ -116,8 +116,9 @@ export default function Pecas() {
       setError(null);
       const data = await pecaService.getAll();
       setPecas(data);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao carregar peças');
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao carregar peças';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -135,8 +136,9 @@ export default function Pecas() {
       const data = await pecaService.search(searchQuery);
       setPecas(data);
       setPage(0);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao buscar peças');
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao buscar peças';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -204,8 +206,9 @@ export default function Pecas() {
       setTimeout(() => {
         setHighlightedId(null);
       }, 2000);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao salvar peça');
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao salvar peça';
+      setError(errorMessage);
     }
   };
 
@@ -216,8 +219,9 @@ export default function Pecas() {
       setSuccess('Peça excluída com sucesso!');
       loadPecas();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao excluir peça');
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao excluir peça';
+      setError(errorMessage);
     }
   };
 
@@ -268,8 +272,9 @@ export default function Pecas() {
       setDialogCategoriaOpen(false);
       setNovaCategoria({ nome: '', descricao: '' });
       setSuccess('Categoria criada com sucesso!');
-    } catch (err: any) {
-      setError(err.response?.data?.erro || 'Erro ao criar categoria');
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao criar categoria';
+      setError(errorMessage);
     } finally {
       setLoadingCategoria(false);
     }
@@ -838,7 +843,13 @@ export default function Pecas() {
               setLoadingEntrada(true);
               try {
                 // Preparar dados da entrada
-                const dadosEntrada: any = {
+                const dadosEntrada: {
+                  peca_id: number;
+                  quantidade: number;
+                  motivo: string;
+                  preco_custo?: number;
+                  preco_venda?: number;
+                } = {
                   peca_id: pecaSelecionadaEntrada!.id,
                   quantidade: parseInt(quantidadeEntrada),
                   motivo: motivoEntrada.trim()
@@ -867,8 +878,9 @@ export default function Pecas() {
                 setHighlightId(pecaSelecionadaEntrada!.id);
                 setTimeout(() => setHighlightId(null), 2000);
 
-              } catch (erro: any) {
-                setError(erro.response?.data?.erro || 'Erro ao registrar entrada');
+              } catch (erro: unknown) {
+                const errorMessage = (erro as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao registrar entrada';
+                setError(errorMessage);
               } finally {
                 setLoadingEntrada(false);
               }
@@ -1021,8 +1033,9 @@ export default function Pecas() {
                 setHighlightId(pecaSelecionadaSaida!.id);
                 setTimeout(() => setHighlightId(null), 2000);
 
-              } catch (erro: any) {
-                setError(erro.response?.data?.erro || 'Erro ao registrar saída');
+              } catch (erro: unknown) {
+                const errorMessage = (erro as { response?: { data?: { erro?: string } } }).response?.data?.erro || 'Erro ao registrar saída';
+                setError(errorMessage);
               } finally {
                 setLoadingSaida(false);
               }
