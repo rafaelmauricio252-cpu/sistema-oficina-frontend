@@ -63,13 +63,15 @@ function formatarData(data: string | Date | number): string {
   if (!data) return '-';
 
   // Converter para string se necessário
-  let dataStr = data;
+  let dataStr: string;
   if (typeof data !== 'string') {
     if (data instanceof Date) {
       dataStr = data.toISOString();
     } else {
       dataStr = String(data);
     }
+  } else {
+    dataStr = data;
   }
 
   // Se já está no formato DD/MM/YYYY, retornar como está

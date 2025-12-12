@@ -180,7 +180,13 @@ export default function Relatorios() {
         });
 
         // Gerar PDF
-        gerarPDFRelatorioOS(camposSelecionados, response, relatorioOS.filtros);
+        const filtrosPDF = {
+          data_inicio: relatorioOS.filtros.data_inicio ? relatorioOS.filtros.data_inicio.toISOString().split('T')[0] : undefined,
+          data_fim: relatorioOS.filtros.data_fim ? relatorioOS.filtros.data_fim.toISOString().split('T')[0] : undefined,
+          status: relatorioOS.filtros.status || undefined,
+          busca: relatorioOS.filtros.busca || undefined
+        };
+        gerarPDFRelatorioOS(camposSelecionados, response, filtrosPDF);
 
         setSnackbar({
           open: true,
@@ -228,7 +234,12 @@ export default function Relatorios() {
           }
         });
 
-        gerarPDFRelatorioFinanceiro(camposSelecionados, response, relatorioFinanceiro.filtros);
+        const filtrosFinanceiroPDF = {
+          data_inicio: relatorioFinanceiro.filtros.data_inicio ? relatorioFinanceiro.filtros.data_inicio.toISOString().split('T')[0] : undefined,
+          data_fim: relatorioFinanceiro.filtros.data_fim ? relatorioFinanceiro.filtros.data_fim.toISOString().split('T')[0] : undefined,
+          busca: relatorioFinanceiro.filtros.busca || undefined
+        };
+        gerarPDFRelatorioFinanceiro(camposSelecionados, response, filtrosFinanceiroPDF);
 
         setSnackbar({
           open: true,
